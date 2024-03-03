@@ -8,7 +8,7 @@ const RoutesComponent = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route exact path="/login" element={<Login />} />
+        <Route exact path="/" element={<Login />} />
         <Route path="/app" element={<App />} />
       </Routes>
     </BrowserRouter>

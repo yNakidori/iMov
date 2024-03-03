@@ -1,8 +1,34 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Importe useNavigate
 import Footer from "./components/Footer";
+import { auth } from "./firebase/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 function App() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const navigate = useNavigate();
+
+  const register = async (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      setSuccessMessage("Conta criada com sucesso!");
+      navigate("/"); // Redirecionar para a tela de login
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <div className="">
       <div className="flex flex-col items-center min-h-screen pt-6 sm:justify-center sm:pt-0 bg-gray-900">
@@ -12,22 +38,7 @@ function App() {
           </a>
         </div>
         <div className="w-full px-6 py-4 mt-6 overflow-hidden bg-white shadow-md sm:max-w-md sm:rounded-lg">
-          <form>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 undefined"
-              >
-                Name
-              </label>
-              <div className="flex flex-col items-start">
-                <input
-                  type="text"
-                  name="name"
-                  className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-              </div>
-            </div>
+          <form onSubmit={register}>
             <div className="mt-4">
               <label
                 htmlFor="email"
@@ -39,6 +50,8 @@ function App() {
                 <input
                   type="email"
                   name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 />
               </div>
@@ -54,6 +67,8 @@ function App() {
                 <input
                   type="password"
                   name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 />
               </div>
@@ -69,17 +84,23 @@ function App() {
                 <input
                   type="password"
                   name="password_confirmation"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 />
               </div>
             </div>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
+            {successMessage && (
+              <div className="text-green-500 mt-2">{successMessage}</div>
+            )}
             <div className="flex items-center justify-end mt-4">
               <p className="text-sm text-gray-600">
-                Don't have an account yet?
+                Already have an account?
                 <span className="ml-1 text-gray-900 underline hover:text-gray-700">
                   {" "}
-                  <Link to="/Login" className="text-purple-600 hover:underline">
-                    Sign in
+                  <Link to="/" className="text-purple-600 hover:underline">
+                    Log in
                   </Link>
                 </span>
               </p>
