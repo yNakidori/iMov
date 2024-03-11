@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import House from '../../iMov/src/components/Lottie/House';
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -28,11 +29,7 @@ function Login() {
   return (
     <div className="">
       <div className="flex flex-col items-center min-h-screen pt-6 sm:justify-center sm:pt-0 bg-gray-900">
-        <div>
-          <a href="/">
-            <h3 className="text-4xl font-bold text-purple-600">Logo</h3>
-          </a>
-        </div>
+        <House style={{ width: '100px', height: '100px'}}  /> {/* Substituir o logo pelo componente House */}
         <div className="w-full px-6 py-4 mt-6 overflow-hidden bg-white shadow-md sm:max-w-md sm:rounded-lg">
           <form onSubmit={logi}>
             <div className="mt-4">

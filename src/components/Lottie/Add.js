@@ -3,7 +3,9 @@ import Lottie from 'react-lottie';
 import animationData from '../icons/system-regular-40-add-card.json';
 
 const AnimatedIcon = () => {
+  
   const [isAnimationActive, setIsAnimationActive] = useState(false);
+  const [isMouseOver, setIsMouseOver] = useState(false);
 
   const defaultOptions = {
     loop: false,
@@ -19,11 +21,15 @@ const AnimatedIcon = () => {
   };
 
   return (
-    <div onClick={toggleAnimation}>
+    <div
+      onClick={toggleAnimation}
+      onMouseEnter={() => setIsMouseOver(true)}
+      onMouseLeave={() => setIsMouseOver(false)}
+    >
       <Lottie
         options={{
           ...defaultOptions,
-          autoplay: isAnimationActive
+          autoplay: isAnimationActive || isMouseOver
         }}
         height={50}
         width={50}

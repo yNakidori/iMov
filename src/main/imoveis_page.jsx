@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import CadForm from '../components/CadForm';
 import Footer from '../components/Footer';
 import AnimatedIcon from '../components/Lottie/Add';
 
@@ -17,7 +18,7 @@ const ListaImoveisPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-purple-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-indigo-300 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-extrabold text-white">Lista de Imóveis</h2>
@@ -32,12 +33,11 @@ const ListaImoveisPage = () => {
         {isPopupOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
             <div className="bg-white p-8 max-w-xl mx-auto rounded-md shadow-lg">
-              <h2 className="text-2xl font-bold mb-4">Popup Content</h2>
-              <p>Conteúdo do popup...</p>
-              <button onClick={togglePopup} className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+              <CadForm />
+            </div>
+            <button onClick={togglePopup} className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
                 Fechar Popup
               </button>
-            </div>
           </div>
         )}
         {/* Fim do Pop-up */}
