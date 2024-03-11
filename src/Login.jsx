@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -7,17 +7,23 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false); // Estado para controlar o redirecionamento
 
   const logi = (e) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log(userCredential);
+        setLoggedIn(true); // Define loggedIn como true após o login bem-sucedido
       })
       .catch((error) => {
         console.log(error);
       });
   };
+
+  if (loggedIn) {
+    return <Navigate to="/lista" />; // Redireciona o usuário se loggedIn for true
+  }
 
   return (
     <div className="">
@@ -75,9 +81,9 @@ function Login() {
               </p>
               <button
                 type="submit"
-                className="inline-flex items-center px-4 py-2 ml-4 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out bg-gray-900 border border-transparent rounded-md active:bg-gray-900 false"
+                className="inline-flex items-center px-4 py-2 ml-4 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out bg-gray-900 border border-transparent rounded-md active:bg-gray-900"
               >
-                Log In
+                Log in
               </button>
             </div>
           </form>
