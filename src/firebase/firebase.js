@@ -1,10 +1,13 @@
-// Import the functions you need from the SDKs you need
+// Importe as funções que você precisa dos SDKs que precisa
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getStorage } from "firebase/storage";
+// eslint-disable-next-line
+import { ref, uploadBytes } from "firebase/storage";
 
-// Your web app's Firebase configuration
+import { getFirestore } from "firebase/firestore";
+
+// Seu arquivo de configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCVBvpGX-FOsHGj7nBfT71ORdADlkRw-q4",
   authDomain: "imov-a3e90.firebaseapp.com",
@@ -14,10 +17,16 @@ const firebaseConfig = {
   appId: "1:166615794462:web:2b94313e2fbfcdb73bff0f",
 };
 
-// Initialize Firebase
+// Inicialize o Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and get a reference to the service
+// Inicialize o Firebase Authentication e obtenha uma referência ao serviço
 const auth = getAuth(app);
 
-export { auth };
+// Inicialize o Firebase Storage e obtenha uma referência ao serviço
+const storage = getStorage(app);
+
+const firestore = getFirestore(app);
+
+// Exporte as funções de autenticação e armazenamento
+export { auth, storage, firestore };

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import CadForm from '../components/CadForm';
 import Footer from '../components/Footer';
 import AnimatedIcon from '../components/Lottie/Add';
+import House from '../components/Lottie/House';
 
 const ListaImoveisPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -18,10 +19,11 @@ const ListaImoveisPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-indigo-300 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 ">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-extrabold text-white">Lista de Imóveis</h2>
+          <House />
           <div className="flex items-center">
             <button onClick={togglePopup} className="text-indigo-600 hover:text-indigo-900">
               Cadastrar Novo Imóvel
@@ -31,13 +33,13 @@ const ListaImoveisPage = () => {
         </div>
         {/* Pop-up */}
         {isPopupOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
-            <div className="bg-white p-8 max-w-xl mx-auto rounded-md shadow-lg">
+          <div className=" fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
+            <div className="bg-indigo-900 p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center">
               <CadForm />
+              <button onClick={togglePopup} className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-md shadow-md transition duration-300 ease-in-out">
+  Fechar Popup
+</button>
             </div>
-            <button onClick={togglePopup} className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                Fechar Popup
-              </button>
           </div>
         )}
         {/* Fim do Pop-up */}

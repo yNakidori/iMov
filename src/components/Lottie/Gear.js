@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import Lottie from 'react-lottie';
-import animationData from '../icons/Animation - 1710194771232.json';
+import React, { useState } from "react";
+import Lottie from "react-lottie";
+import animationData from "../icons/PdvOJKhMLX.json";
 
-const House = () => {
+const Gear = () => {
 
     const [isAnimationActive, setIsAnimationActive] = useState(true);
     const [isMouseOver, setIsMouseOver] = useState(false);
@@ -33,10 +33,11 @@ const House = () => {
           }}
           height={200}
           width={200}
-          style={{ fill: 'red' }}
+          style={{ fill: 'white' }}
         />
       </div>
     );
-  };
 
-export default House;
+}
+
+export default Gear;
