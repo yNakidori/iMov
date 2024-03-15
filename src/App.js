@@ -1,12 +1,23 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import Gear from "./components/Lottie/Gear";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  Grid,
+  Paper,
+  Box,
+  Typography,
+  Link as MuiLink,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 function App() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,99 +36,107 @@ function App() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setSuccessMessage("Conta criada com sucesso!");
-      navigate("/"); // Redirecionar para a tela de login
+      navigate("/"); 
     } catch (error) {
       setError(error.message);
     }
   };
 
+  const defaultTheme = createTheme();
+
   return (
-    <div className="">
-      <div className="flex flex-col items-center min-h-screen pt-6 sm:justify-center sm:pt-0 bg-gray-900">
-        <div>
-          <a href="/">
-            <Gear />
-          </a>
-        </div>
-        <div className="w-full px-6 py-4 mt-6 overflow-hidden bg-white shadow-md sm:max-w-md sm:rounded-lg">
-          <form onSubmit={register}>
-            <div className="mt-4">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 undefined"
-              >
-                Email
-              </label>
-              <div className="flex flex-col items-start">
-                <input
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 undefined"
-              >
-                Password
-              </label>
-              <div className="flex flex-col items-start">
-                <input
-                  type="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              <label
-                htmlFor="password_confirmation"
-                className="block text-sm font-medium text-gray-700 undefined"
-              >
-                Confirm Password
-              </label>
-              <div className="flex flex-col items-start">
-                <input
-                  type="password"
-                  name="password_confirmation"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-              </div>
-            </div>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
-            {successMessage && (
-              <div className="text-green-500 mt-2">{successMessage}</div>
-            )}
-            <div className="flex items-center justify-end mt-4">
-              <p className="text-sm text-gray-600">
-                Already have an account?
-                <span className="ml-1 text-gray-900 underline hover:text-gray-700">
-                  {" "}
-                  <Link to="/" className="text-purple-600 hover:underline">
-                    Log in
-                  </Link>
-                </span>
-              </p>
-              <button
+    <ThemeProvider theme={defaultTheme}>
+      <CssBaseline />
+      <Grid container component="main" sx={{ height: "100vh" }}>
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
+            backgroundImage:
+              'url("https://source.unsplash.com/random?wallpapers")',
+            backgroundRepeat: "no-repeat",
+            backgroundColor: (t) =>
+              t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <Box
+            sx={{
+              my: 8,
+              mx: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+              <Gear />
+            <Typography component="h1" variant="h5">
+              Registre-se
+            </Typography>
+            <Box component="form" noValidate onSubmit={register} sx={{ mt: 3 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Senha"
+                type="password"
+                id="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirme a Senha"
+                type="password"
+                id="confirmPassword"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              {error && <Typography color="error">{error}</Typography>}
+              {successMessage && <Typography color="success">{successMessage}</Typography>}
+              <Button
                 type="submit"
-                className="inline-flex items-center px-4 py-2 ml-4 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out bg-gray-900 border border-transparent rounded-md active:bg-gray-900 false"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
               >
-                Register
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+                Registrar
+              </Button>
+              <Grid container>
+                <Grid item>
+                  <MuiLink component={Link} to="/" variant="body2">
+                    Já tem uma conta? Faça login
+                  </MuiLink>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
       <Footer />
-    </div>
+    </ThemeProvider>
   );
 }
 

@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import CadForm from '../components/CadForm';
+import React, { useState, useEffect } from 'react';
+import { getDatabase, ref, get } from 'firebase/database';
 import Footer from '../components/Footer';
 import AnimatedIcon from '../components/Lottie/Add';
 import House from '../components/Lottie/House';
+import Button from '@mui/material/Button';
+import CadForm from '../components/CadForm';
+import ImovelCard from '../components/ImovelCard';
 
 const ListaImoveisPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [listaDeImoveis, setListaDeImoveis] = useState([]);
+
+  useEffect(() => {
+    const fetchImoveis = async () => {
+      try {
+        const db = getDatabase();
+        const snapshot = await get(ref(db, 'addresses'));
+        if (snapshot.exists()) {
+          const imoveis = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
+          setListaDeImoveis(imoveis);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar imóveis:', error);
+      }
+    };
+
+    fetchImoveis();
+  }, []);
 
   const togglePopup = () => {
     setIsPopupOpen(!isPopupOpen);
   };
-
-  const listaDeImoveis = [
-    { id: 1, nome: 'Imóvel 1', descricao: 'Descrição do Imóvel 1' },
-    { id: 2, nome: 'Imóvel 2', descricao: 'Descrição do Imóvel 2' },
-    { id: 3, nome: 'Imóvel 3', descricao: 'Descrição do Imóvel 3' },
-  ];
 
   return (
     <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 ">
@@ -31,28 +45,21 @@ const ListaImoveisPage = () => {
             </button>
           </div>
         </div>
-        {/* Pop-up */}
         {isPopupOpen && (
           <div className=" fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
-            <div className="bg-indigo-900 p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center">
+            <div className=" p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center">
               <CadForm />
-              <button onClick={togglePopup} className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-md shadow-md transition duration-300 ease-in-out">
-  Fechar Popup
-</button>
+              <div className='mt-6 flex items-center justify-center'>
+                <Button onClick={togglePopup} variant="contained" color="error">
+                  Fechar Popup
+                </Button>
+              </div>
             </div>
           </div>
         )}
-        {/* Fim do Pop-up */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {listaDeImoveis.map((imovel) => (
-            <div key={imovel.id} className="bg-white overflow-hidden shadow-lg rounded-lg">
-              <Link to={`/imovel/${imovel.id}`}>
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg font-medium leading-6 text-gray-900">{imovel.nome}</h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">{imovel.descricao}</p>
-                </div>
-              </Link>
-            </div>
+            <ImovelCard key={imovel.id} id={imovel.id} nome={imovel.address} descricao={imovel.neighborhood} imageUrls={[imovel.firstImageUrl]} />
           ))}
         </div>
       </div>
