@@ -59,7 +59,7 @@ const ListaImoveisPage = () => {
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {listaDeImoveis.map((imovel) => (
-            <ImovelCard key={imovel.id} id={imovel.id} nome={imovel.address} descricao={imovel.neighborhood} imageUrls={[imovel.firstImageUrl]} />
+            <ImovelCard key={imovel.id} id={imovel.id} nome={imovel.address} descricao={imovel.neighborhood} imageUrls={imovel.imageUrls} />
           ))}
         </div>
       </div>

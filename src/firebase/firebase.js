@@ -11,6 +11,7 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyCVBvpGX-FOsHGj7nBfT71ORdADlkRw-q4",
   authDomain: "imov-a3e90.firebaseapp.com",
+  databaseURL: "https://imov-a3e90-default-rtdb.firebaseio.com",
   projectId: "imov-a3e90",
   storageBucket: "imov-a3e90.appspot.com",
   messagingSenderId: "166615794462",

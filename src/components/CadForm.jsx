@@ -9,7 +9,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 const CadForm = () => {
-
   const [address, setAddress] = useState('');
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
@@ -22,7 +21,6 @@ const CadForm = () => {
   const [image1Progress, setImage1Progress] = useState(0);
   const [image2Progress, setImage2Progress] = useState(0);
   const [image3Progress, setImage3Progress] = useState(0);
-  const [firstImageUrl, setFirstImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
   const handleAddressChange = (event) => {
@@ -92,20 +90,19 @@ const CadForm = () => {
         const imageRef = storageRef(storage, `images/${image.name}`);
         const uploadTask = uploadBytesResumable(imageRef, image);
       
-        await uploadTask.on('state_changed', (snapshot) => {
+        uploadTask.on('state_changed', (snapshot) => {
           const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
           setProgress(progress);
         });
       
         const imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        if (imageUrls.length === 0) {
-          setFirstImageUrl(imageUrl); // Armazena a URL da primeira imagem
-        }
         imageUrls.push(imageUrl);
+        console.log("URL da imagem:", imageUrl);
+        return imageUrl; // Retorna a URL da imagem
       };
 
       // Faz o upload das imagens
-      await Promise.all([
+      const uploadedImageUrls = await Promise.all([
         uploadImage(image1, setImage1Progress),
         uploadImage(image2, setImage2Progress),
         uploadImage(image3, setImage3Progress)
@@ -115,7 +112,7 @@ const CadForm = () => {
       const videoReference = storageRef(storage, `videos/${video.name}`);
       const videoUploadTask = uploadBytesResumable(videoReference, video);
 
-      await videoUploadTask.on('state_changed', (snapshot) => {
+      videoUploadTask.on('state_changed', (snapshot) => {
         const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         setVideoProgress(progress);
       });
@@ -129,8 +126,7 @@ const CadForm = () => {
         neighborhood,
         cep,
         videoURL,
-        imageUrls,
-        firstImageUrl,
+        imageUrls: uploadedImageUrls, // Usa os URLs retornados do upload
       });
 
       // Limpa os campos do formulário após o envio bem-sucedido
@@ -148,6 +144,9 @@ const CadForm = () => {
       setImage3Progress(0);
       setUploading(false);
 
+      // Armazena os URLs das imagens no localStorage
+      localStorage.setItem('uploadedImageUrls', JSON.stringify(uploadedImageUrls));
+
       // Feedback para o usuário de que o envio foi concluído
       alert('Formulário enviado com sucesso!');
     } catch (error) {
@@ -156,6 +155,7 @@ const CadForm = () => {
       alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
       setUploading(false);
     }
+    window.location.reload(); // Recarrega a página
   };
 
   return (
