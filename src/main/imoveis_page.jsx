@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Importe o Link do React Router
 import { getDatabase, ref, get } from 'firebase/database';
 import Footer from '../components/Footer';
 import AnimatedIcon from '../components/Lottie/Add';
@@ -33,9 +34,13 @@ const ListaImoveisPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 ">
+    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
+          {/* Use o componente Link do React Router para direcionar para a página de navegação */}
+          <Link to="/NavPage" className="text-white">
+            GERAL
+          </Link>
           <h2 className="text-3xl font-extrabold text-white">Lista de Imóveis</h2>
           <House />
           <div className="flex items-center">
@@ -46,8 +51,8 @@ const ListaImoveisPage = () => {
           </div>
         </div>
         {isPopupOpen && (
-          <div className=" fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
-            <div className=" p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center">
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+            <div className="p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center relative">
               <CadForm />
               <div className='mt-6 flex items-center justify-center'>
                 <Button onClick={togglePopup} variant="contained" color="error">
