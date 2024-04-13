@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom"; // Importe o Link
 import House from '../../iMov/src/components/Lottie/House';
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
@@ -20,14 +20,14 @@ import {
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false); 
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const logi = (e) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log(userCredential);
-        setLoggedIn(true); 
+        setLoggedIn(true);
       })
       .catch((error) => {
         console.log(error);
@@ -35,7 +35,7 @@ function Login() {
   };
 
   if (loggedIn) {
-    return <Navigate to="/lista" />; 
+    return <Navigate to="/lista" />;
   }
 
   const defaultTheme = createTheme();
@@ -68,7 +68,7 @@ function Login() {
               alignItems: 'center',
             }}
           >
-              <House />
+            <House />
             <Typography component="h1" variant="h5">
               Entrar
             </Typography>
@@ -107,14 +107,10 @@ function Login() {
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <MuiLink href="#" variant="body2">
+                  {/* Adicione o Link para a página de redefinição de senha */}
+                  <Link to="/passwordreset" variant="body2">
                     Esqueceu sua senha?
-                  </MuiLink>
-                </Grid>
-                <Grid item>
-                  <MuiLink component={Link} to="/App" variant="body2">
-                    {"Não tem uma conta? Cadastre-se"}
-                  </MuiLink>
+                  </Link>
                 </Grid>
               </Grid>
             </Box>

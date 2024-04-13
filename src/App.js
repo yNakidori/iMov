@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Gear from "./components/Lottie/Gear";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import {
   Button,
   CssBaseline,
@@ -34,9 +34,11 @@ function App() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      setSuccessMessage("Conta criada com sucesso!");
-      navigate("/"); 
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Envia e-mail de verificação
+      await sendEmailVerification(userCredential.user);
+      setSuccessMessage("Conta criada com sucesso! Um e-mail de verificação foi enviado para o seu endereço de e-mail.");
+      navigate("/");
     } catch (error) {
       setError(error.message);
     }
@@ -73,9 +75,9 @@ function App() {
               alignItems: "center",
             }}
           >
-              <Gear />
+            <Gear />
             <Typography component="h1" variant="h5">
-              Registre-se
+              Registro de perfil
             </Typography>
             <Box component="form" noValidate onSubmit={register} sx={{ mt: 3 }}>
               <TextField
@@ -126,7 +128,7 @@ function App() {
               </Button>
               <Grid container>
                 <Grid item>
-                  <MuiLink component={Link} to="/" variant="body2">
+                  <MuiLink component={Link} to="/login" variant="body2">
                     Já tem uma conta? Faça login
                   </MuiLink>
                 </Grid>

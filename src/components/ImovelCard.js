@@ -11,7 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { getDatabase, ref as databaseRef, remove } from 'firebase/database';
 import { getStorage, ref as storageRef, deleteObject } from 'firebase/storage';
 
-const ImovelCard = ({ id, nome, descricao, imageUrls }) => {
+const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets, imageUrls }) => {
   // Verifica se há URLs de imagens disponíveis
   const coverImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers';
 
@@ -40,8 +40,8 @@ const ImovelCard = ({ id, nome, descricao, imageUrls }) => {
   return (
     <Card variant="outlined" sx={{ p: 2, zIndex: 1 }}>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box>
               <Typography variant="body2" color="text.secondary" fontWeight="regular">
                 {descricao}
@@ -49,8 +49,14 @@ const ImovelCard = ({ id, nome, descricao, imageUrls }) => {
               <Typography fontWeight="bold" noWrap gutterBottom>
                 {nome}
               </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight="regular">
+                Número: {numero} | CEP: {cep}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight="regular">
+                Quartos: {quartos} | Banheiros: {banheiros} | Permite Pets: {pets ? 'Sim' : 'Não'}
+              </Typography>
             </Box>
-            <Box>
+            <Box sx={{ mt: 2 }}>
               <Chip
                 size="small"
                 variant="outlined"
@@ -69,7 +75,7 @@ const ImovelCard = ({ id, nome, descricao, imageUrls }) => {
             </Box>
           </Box>
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12}>
           <CardMedia
             component="img"
             alt={`${nome} cover`}
