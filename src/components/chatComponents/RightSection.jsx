@@ -8,8 +8,8 @@ const RightSection = () => {
         // Adicione verificação para evitar envio de mensagens vazias
         if (!message.trim()) return;
 
-        let url = "https://api.openai.com/v1/chat/completions";
-        let token = "Bearer sk-proj-Ewavrpswf3ygkxS2wrg2T3BlbkFJDj3HWsNEI1YsjcFTQLGa";
+        let url = "";
+        let token = "";
         let model = "gpt-3.5-turbo";
 
         let messagesToSend = [
