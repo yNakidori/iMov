@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import Box from '@mui/material/Box';
@@ -8,23 +8,32 @@ import InfoRounded from '@mui/icons-material/InfoRounded';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getDatabase, ref as databaseRef, remove } from 'firebase/database';
+import { getDatabase, ref as databaseRef, remove, update, push } from 'firebase/database';
 import { getStorage, ref as storageRef, deleteObject } from 'firebase/storage';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
 
-const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets, imageUrls }) => {
-  // Verifica se há URLs de imagens disponíveis
+const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets, valorVenda, imageUrls, onImovelVendido, origin }) => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [valorVendaInput, setValorVendaInput] = useState('');
+
   const coverImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers';
 
-  // Função para lidar com a exclusão do registro
   const handleDelete = async () => {
     try {
       const db = getDatabase();
       const storage = getStorage();
 
-      // Remover dados do Realtime Database
-      await remove(databaseRef(db, `addresses/${id}`));
+      if (origin === 'available') {
+        await remove(databaseRef(db, `addresses/${id}`));
+      } else if (origin === 'sold') {
+        await remove(databaseRef(db, `vendidos/${id}`));
+      }
 
-      // Remover imagens do Firebase Storage
       for (const imageUrl of imageUrls) {
         const imageRef = storageRef(storage, imageUrl);
         await deleteObject(imageRef);
@@ -34,7 +43,30 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
     } catch (error) {
       console.error('Erro ao excluir o registro:', error);
     }
-    window.location.reload(); // Recarrega a página
+    window.location.reload();
+  };
+
+  const handleMarkAsSold = () => {
+    setOpenDialog(true);
+  };
+
+  const handleConfirmSold = async () => {
+    try {
+      const db = getDatabase();
+      await update(databaseRef(db, `addresses/${id}`), {
+        vendido: true,
+        valorVenda: Number(valorVendaInput),
+      });
+      console.log(`Imóvel com o ID ${id} foi marcado como vendido com sucesso.`);
+      onImovelVendido(id);
+    } catch (error) {
+      console.error('Erro ao marcar o imóvel como vendido:', error);
+    }
+    setOpenDialog(false);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
   };
 
   return (
@@ -55,6 +87,11 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
               <Typography variant="body2" color="text.secondary" fontWeight="regular">
                 Quartos: {quartos} | Banheiros: {banheiros} | Permite Pets: {pets ? 'Sim' : 'Não'}
               </Typography>
+              {origin === 'sold' && (
+                <Typography variant="body2" color="text.secondary" fontWeight="bold">
+                  Valor da Venda: R$ {valorVenda}
+                </Typography>
+              )}
             </Box>
             <Box sx={{ mt: 2 }}>
               <Chip
@@ -72,6 +109,9 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
               <IconButton onClick={handleDelete} aria-label="delete">
                 <DeleteIcon />
               </IconButton>
+              <Button onClick={handleMarkAsSold} variant="outlined" color="primary">
+                Marcar como vendido
+              </Button>
             </Box>
           </Box>
         </Grid>
@@ -79,11 +119,34 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
           <CardMedia
             component="img"
             alt={`${nome} cover`}
-            src={coverImage} // Define a URL da primeira imagem como a capa do card
+            src={coverImage}
             sx={{ borderRadius: '6px', width: '100%' }}
           />
         </Grid>
       </Grid>
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>Marcar Imóvel como Vendido</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="valor-venda"
+            label="Valor da Venda (R$)"
+            type="number"
+            fullWidth
+            value={valorVendaInput}
+            onChange={(e) => setValorVendaInput(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="error">
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirmSold} color="primary">
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Importe o Link do React Router
-import { getDatabase, ref, get } from 'firebase/database';
+import { getDatabase, ref, get, update, push, remove } from 'firebase/database';
 import Footer from '../components/Footer';
 import AnimatedIcon from '../components/Lottie/Add';
 import House from '../components/Lottie/House';
@@ -8,10 +7,14 @@ import Button from '@mui/material/Button';
 import CadForm from '../components/CadForm';
 import ImovelCard from '../components/ImovelCard';
 import MenuAppAdm from '../components/MenuAppAdm';
+import DashboardCard from '../components/DashboardCard'; // Importe o componente para o dashboard
 
 const ListaImoveisPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [listaDeImoveis, setListaDeImoveis] = useState([]);
+  const [listaDeVendidos, setListaDeVendidos] = useState([]);
+  const [totalImoveis, setTotalImoveis] = useState(0);
+  const [precoMedio, setPrecoMedio] = useState(0);
 
   useEffect(() => {
     const fetchImoveis = async () => {
@@ -21,6 +24,14 @@ const ListaImoveisPage = () => {
         if (snapshot.exists()) {
           const imoveis = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
           setListaDeImoveis(imoveis);
+
+          // Calcula o total de imóveis
+          setTotalImoveis(imoveis.length);
+
+          // Calcula o preço médio
+          const totalPreco = imoveis.reduce((acc, imovel) => acc + imovel.preco, 0);
+          const mediaPreco = totalPreco / imoveis.length;
+          setPrecoMedio(mediaPreco);
         }
       } catch (error) {
         console.error('Erro ao buscar imóveis:', error);
@@ -34,16 +45,52 @@ const ListaImoveisPage = () => {
     setIsPopupOpen(!isPopupOpen);
   };
 
+  // Função para marcar o imóvel como vendido e movê-lo para uma lista de vendidos
+  const handleMarkAsSold = async (id) => {
+    try {
+      const db = getDatabase();
+      const imovelRef = ref(db, `addresses/${id}`);
+      const vendidosRef = ref(db, 'vendidos');
+
+      // Obter os dados do imóvel que será marcado como vendido
+      const snapshot = await get(imovelRef);
+      if (snapshot.exists()) {
+        const imovelData = snapshot.val();
+        // Adicionar o imóvel à lista de vendidos
+        await push(vendidosRef, { ...imovelData, dataVenda: Date.now() });
+        // Remover o imóvel da lista de imóveis principal
+        await remove(imovelRef);
+        // Atualizar a lista de imóveis
+        setListaDeImoveis(listaDeImoveis.filter(imovel => imovel.id !== id));
+      }
+    } catch (error) {
+      console.error('Erro ao marcar o imóvel como vendido:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchVendidos = async () => {
+      try {
+        const db = getDatabase();
+        const snapshot = await get(ref(db, 'vendidos'));
+        if (snapshot.exists()) {
+          const vendidos = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
+          setListaDeVendidos(vendidos);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar imóveis vendidos:', error);
+      }
+    };
+
+    fetchVendidos();
+  }, []);
+
   return (
     <>
       <MenuAppAdm />
-      <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative">
+      <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative ">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-6">
-            {/* Use o componente Link do React Router para direcionar para a página de navegação */}
-            <Link to="/NavPage" className="text-white">
-              GERAL
-            </Link>
             <House />
             <div className="flex items-center">
               <button onClick={togglePopup} className="text-indigo-600 hover:text-indigo-900">
@@ -64,10 +111,23 @@ const ListaImoveisPage = () => {
               </div>
             </div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {listaDeImoveis.map((imovel) => (
-              <ImovelCard key={imovel.id} id={imovel.id} nome={imovel.address} descricao={imovel.neighborhood} imageUrls={imovel.imageUrls} cep={imovel.cep} banheiros={imovel.bathrooms} quartos={imovel.bedrooms} pets={imovel.petsAllowed} numero={imovel.number} />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <DashboardCard title="Quantidade de Imóveis Cadastrados" value={totalImoveis} />
+          </div>
+          <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ maxHeight: 'calc(50vh - 200px)', overflowY: 'auto' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
+              {listaDeImoveis.map((imovel) => (
+                <ImovelCard key={imovel.id} {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
+              ))}
+            </div>
+          </div>
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold text-gray-200 mb-4">Lista de Imóveis Vendidos</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
+              {listaDeVendidos.map((imovel) => (
+                <ImovelCard key={imovel.id} {...imovel} origin="sold" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -77,3 +137,4 @@ const ListaImoveisPage = () => {
 };
 
 export default ListaImoveisPage;
+
