@@ -14,10 +14,8 @@ import InputLabel from '@mui/material/InputLabel';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const CadForm = () => {
-  const [address, setAddress] = useState('');
-  const [number, setNumber] = useState('');
+  const [city, setCity] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
-  const [cep, setCep] = useState('');
   const [price, setPrice] = useState('');
   const [video, setVideo] = useState(null);
   const [images, setImages] = useState(new Array(6).fill(null));
@@ -28,21 +26,14 @@ const CadForm = () => {
   const [bedrooms, setBedrooms] = useState('');
   const [bathrooms, setBathrooms] = useState('');
   const [petsAllowed, setPetsAllowed] = useState(false);
+  const [garageSpaces, setGarageSpaces] = useState('');
 
-  const handleAddressChange = (event) => {
-    setAddress(event.target.value);
-  };
-
-  const handleNumberChange = (event) => {
-    setNumber(event.target.value);
+  const handleCityChange = (event) => {
+    setCity(event.target.value);
   };
 
   const handleNeighborhoodChange = (event) => {
     setNeighborhood(event.target.value);
-  };
-
-  const handleCepChange = (event) => {
-    setCep(event.target.value);
   };
 
   const handlePriceChange = (event) => {
@@ -118,10 +109,8 @@ const CadForm = () => {
 
       // Adiciona os dados do formulário e os URLs das imagens e do vídeo à coleção 'addresses'
       await push(databaseRef(db, 'addresses'), {
-        address,
-        number,
+        city,
         neighborhood,
-        cep,
         price,
         videoURL,
         imageUrls,
@@ -130,13 +119,12 @@ const CadForm = () => {
         bedrooms,
         bathrooms,
         petsAllowed,
+        garageSpaces,
       });
 
       // Limpa os campos do formulário após o envio bem-sucedido
-      setAddress('');
-      setNumber('');
+      setCity('');
       setNeighborhood('');
-      setCep('');
       setPrice('');
       setVideo(null);
       setImages(new Array(6).fill(null));
@@ -156,7 +144,7 @@ const CadForm = () => {
   };
 
   // Verifica se todos os campos estão prontos para upload
-  const allFieldsReady = address && number && neighborhood && cep && price && images.some(image => image) && !uploading;
+  const allFieldsReady = city && neighborhood && price && images.some(image => image) && !uploading;
 
   return (
     <div className="max-h-screen flex flex-col items-center justify-center rounded-md">
@@ -180,55 +168,31 @@ const CadForm = () => {
             />
             {/* Price */}
 
-            {/* Form - Row 1 */}
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <TextField
-                label="Endereço"
-                color='secondary'
-                size="small"
-                type="text"
-                name="address"
-                value={address}
-                onChange={handleAddressChange}
-                className="mt-1 p-2 border rounded-md"
-              />
-              <TextField
-                label="Número"
-                color='secondary'
-                size="small"
-                type="text"
-                name="number"
-                value={number}
-                onChange={handleNumberChange}
-                className="mt-1 p-2 border rounded-md"
-              />
-            </div>
-            {/* Form - Row 1 */}
+            {/* City */}
+            <TextField
+              label="Cidade"
+              color='secondary'
+              size="small"
+              type="text"
+              name="city"
+              value={city}
+              onChange={handleCityChange}
+              className="mt-4 p-2 border rounded-md w-full"
+            />
+            {/* City */}
 
-            {/* Form - Row 2 */}
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <TextField
-                label="Bairro"
-                color='secondary'
-                size="small"
-                type="text"
-                name="neighborhood"
-                value={neighborhood}
-                onChange={handleNeighborhoodChange}
-                className="mt-1 p-2 border rounded-md"
-              />
-              <TextField
-                label="CEP"
-                color='secondary'
-                size="small"
-                type="text"
-                name="cep"
-                value={cep}
-                onChange={handleCepChange}
-                className="mt-1 p-2 border rounded-md"
-              />
-            </div>
-            {/* Form - Row 2 */}
+            {/* Neighborhood */}
+            <TextField
+              label="Bairro"
+              color='secondary'
+              size="small"
+              type="text"
+              name="neighborhood"
+              value={neighborhood}
+              onChange={handleNeighborhoodChange}
+              className="mt-4 p-2 border rounded-md w-full"
+            />
+            {/* Neighborhood */}
 
             {/* Selectors */}
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -284,19 +248,16 @@ const CadForm = () => {
                 onChange={(e) => setBathrooms(e.target.value)}
                 className="mt-1 p-2 border rounded-md"
               />
-              <FormControl component="fieldset">
-                <InputLabel id="petsAllowedLabel">Aceita Pets?</InputLabel>
-                <Select
-                  labelId="petsAllowedLabel"
-                  value={petsAllowed}
-                  onChange={(e) => setPetsAllowed(e.target.value)}
-                  label="Aceita Pets?"
-                  className="w-full"
-                >
-                  <MenuItem value={true}>Sim</MenuItem>
-                  <MenuItem value={false}>Não</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField
+                label="Vagas de Garagem"
+                color='secondary'
+                size="small"
+                type="number"
+                name="garageSpaces"
+                value={garageSpaces}
+                onChange={(e) => setGarageSpaces(e.target.value)}
+                className="mt-1 p-2 border rounded-md"
+              />
             </div>
             {/* Form - Row 3 */}
 

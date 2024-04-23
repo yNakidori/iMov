@@ -3,14 +3,16 @@ import Footer from '../components/Footer';
 import MenuAppBar from '../components/MenuAppBar';
 import ImovelCardFull from '../components/ImovelCardFull';
 import { getDatabase, ref, get } from 'firebase/database';
-import { BiSearch } from 'react-icons/bi'; // Importa o ícone de pesquisa
+import { BiSearch } from 'react-icons/bi';
+import Whats from '../components/Lottie/Whats';
 
 const NavPage = () => {
-  const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]); // Estado para armazenar a lista original de imóveis
-  const [listaDeImoveis, setListaDeImoveis] = useState([]); // Estado para armazenar a lista atual de imóveis
+  const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]);
+  const [listaDeImoveis, setListaDeImoveis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [noResults, setNoResults] = useState(false); // State para controlar se nenhum imóvel foi encontrado
   const endOfPageRef = useRef(null);
 
   useEffect(() => {
@@ -21,8 +23,9 @@ const NavPage = () => {
         const snapshot = await get(ref(db, 'addresses'));
         if (snapshot.exists()) {
           const imoveis = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
-          setOriginalListaDeImoveis(imoveis); // Atualiza a lista original de imóveis
-          setListaDeImoveis(imoveis); // Define a lista atual de imóveis
+          setOriginalListaDeImoveis(imoveis);
+          setListaDeImoveis(imoveis);
+          setNoResults(false); // Resetar o estado quando os imóveis são carregados
         }
       } catch (error) {
         console.error('Erro ao buscar imóveis:', error);
@@ -45,56 +48,59 @@ const NavPage = () => {
   }, []);
 
   const handleSearchChange = (event) => {
-    const searchTerm = event.target.value.toLowerCase(); // Convertendo o termo de pesquisa para minúsculas
-    setSearchTerm(searchTerm); // Atualiza o estado searchTerm com o texto digitado
+    const searchTerm = event.target.value.toLowerCase();
+    setSearchTerm(searchTerm);
 
-    // Filtrando a lista original de imóveis com base no termo de pesquisa
     const filteredImoveis = originalListaDeImoveis.filter((imovel) => {
-      // Verifica se a descrição do imóvel contém o termo de pesquisa
       return imovel.neighborhood.toLowerCase().includes(searchTerm);
     });
 
-    // Atualizando a lista atual de imóveis com os resultados filtrados ou com a lista original se não houver termo de pesquisa
+    // Atualiza a lista de imóveis e o estado de nenhum resultado encontrado
     setListaDeImoveis(searchTerm ? filteredImoveis : originalListaDeImoveis);
+    setNoResults(searchTerm && filteredImoveis.length === 0);
   };
 
   return (
     <div className='bg-sky-100 min-h-screen'>
       <MenuAppBar />
-      <div className="container mx-auto px-2 py-3 flex justify-center"> {/* Adicionado 'flex justify-center' para centralizar horizontalmente */}
-        <div className="relative mb-4"> {/* Adiciona 'relative' para o ícone de pesquisa ficar absoluto dentro do input */}
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="Pesquisar imóveis..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200 w-full"
-          />
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <BiSearch />
+      <div className="container mx-auto px-2 py-3 flex justify-center">
+        <div className="relative mb-4">
+          <div className="flex items-center border border-gray-300 rounded-md focus-within:border-blue-400">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="Pesquisar imóveis..."
+              className="pl-4 py-2 flex-grow rounded-md focus:outline-none"
+            />
+            <div className="flex-shrink-0 p-2">
+              <BiSearch className="text-gray-400" />
+            </div>
           </div>
         </div>
       </div>
       <div className="container mx-auto px-4 py-8">
+        {noResults && (
+          <p className="text-center text-red-500">Nenhum imóvel encontrado</p>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {listaDeImoveis.map((imovel, index) => (
             <ImovelCardFull
               key={imovel.id}
-              id={imovel.id}
-              nome={imovel.address}
-              descricao={imovel.neighborhood}
+              cidade={imovel.city}
+              bairro={imovel.neighborhood}
               imageUrls={imovel.imageUrls}
               videoUrl={imovel.videoURL}
-              numero={imovel.number}
-              cep={imovel.cep}
               quartos={imovel.bedrooms}
               banheiros={imovel.bathrooms}
-              pets={imovel.petsAllowed}
             />
           ))}
           {isLoading && <p>Carregando...</p>}
         </div>
         <div ref={endOfPageRef}></div>
+        <div className="fixed bottom-16 right-10">
+          <Whats />
+        </div>
       </div>
       <Footer />
     </div>
