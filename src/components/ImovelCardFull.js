@@ -1,42 +1,55 @@
 import React from 'react';
+import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, Typography, Grid } from '@mui/material';
 
-const ImovelCardFull = ({ cidade, bairro, imageUrls, videoUrl }) => {
-
-  const renderImageReferences = () => {
-    return (
-      <div>
-
+const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
+  return (
+    <Card sx={{ maxWidth: 360, boxShadow: 4, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'relative', width: '100%', height: '50%', overflow: 'hidden', marginTop: '-2px' }}>
         <img
           src={imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers'}
           alt={`Capa do Card`}
-          className="w-full h-[180px] object-cover"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderTopLeftRadius: '0', borderTopRightRadius: '0' }}
         />
-
-        <div className="flex justify-center gap-5 mt-5">
-          {/* Exibindo no máximo 3 fotos */}
+      </div>
+      <CardContent style={{ flex: 1 }}>
+        <Grid container justifyContent="space-between" alignItems="center" spacing={2}>
+          <Grid item xs={8}>
+            <Typography variant="h6" color="#CCCCFF">{cidade}</Typography>
+            <Typography variant="body2" color="#CCCCFF">{bairro}</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
+              <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+                <FaEye size={15} />
+              </div>
+              <Link to="/visualization">
+                <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+                  <FaPlus size={15} />
+                </div>
+              </Link>
+              <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+                <FaShare size={15} />
+              </div>
+            </div>
+          </Grid>
+        </Grid>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+          <Typography variant="h6" color="#CCCCFF">R$ {valor}</Typography>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', gap: '5px' }}>
           {imageUrls && imageUrls.slice(1, 4).map((imageUrl, index) => (
             <img
               key={index}
               src={imageUrl}
               alt={`Imagem ${index}`}
-              className="w-1/4 rounded-lg"
+              style={{ width: 'calc(32% - 5px)', height: 'auto', borderRadius: '0' }}
             />
           ))}
         </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="w-[360px] rounded-[20px] bg-white max-w-full overflow-hidden flex flex-col items-end justify-start pt-[25px] px-0 pb-0 box-border gap-[39px] leading-normal tracking-normal border-[2px] border-solid border-[#087E8B]">
-      {renderImageReferences()}
-      <section className="self-stretch flex flex-row items-start justify-between p-[25px] gap-[20px]">
-        <div className="flex flex-col items-start">
-          <span className="text-[#087E8B] text-lg font-bold">{cidade}</span>
-          <span className="text-[#087E8B] text-sm">{bairro}</span>
-        </div>
-      </section>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

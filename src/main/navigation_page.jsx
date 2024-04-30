@@ -89,6 +89,7 @@ const NavPage = () => {
               key={imovel.id}
               cidade={imovel.city}
               bairro={imovel.neighborhood}
+              valor={imovel.price}
               imageUrls={imovel.imageUrls}
               videoUrl={imovel.videoURL}
               quartos={imovel.bedrooms}
