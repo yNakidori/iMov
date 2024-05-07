@@ -1,9 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, Typography, Grid } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Modal, IconButton, TextField, Button } from '@mui/material';
+import { getDatabase, ref, push } from 'firebase/database';
 
 const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    telefone: '',
+    mensagem: ''
+  });
+  const [formErrors, setFormErrors] = useState({
+    nome: true,
+    email: true,
+    telefone: true,
+    mensagem: true
+  });
+
+  const handleOpenVideo = () => {
+    setIsVideoOpen(true);
+  };
+
+  const handleCloseVideo = () => {
+    setIsVideoOpen(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    setFormErrors({
+      ...formErrors,
+      [name]: value === ''
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const hasErrors = Object.values(formErrors).some(error => error);
+    if (!hasErrors) {
+      try {
+        const db = getDatabase();
+        const messagesRef = ref(db, 'messages');
+        await push(messagesRef, formData);
+        setIsFormOpen(false);
+        // Exibir alerta de sucesso
+        alert('Formulário enviado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao enviar o formulário:', error);
+        // Exibir alerta de erro
+        alert('Erro ao enviar o formulário. Por favor, tente novamente mais tarde.');
+      }
+    }
+  };
+
   return (
     <Card sx={{ maxWidth: 360, boxShadow: 4, display: 'flex', flexDirection: 'column' }}>
       <div style={{ position: 'relative', width: '100%', height: '50%', overflow: 'hidden', marginTop: '-2px' }}>
@@ -21,17 +76,17 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
           </Grid>
           <Grid item xs={4}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
-              <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+              <IconButton onClick={handleOpenVideo} style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
                 <FaEye size={15} />
-              </div>
+              </IconButton>
               <Link to="/visualization">
                 <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
                   <FaPlus size={15} />
                 </div>
               </Link>
-              <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+              <IconButton onClick={() => setIsFormOpen(true)} style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
                 <FaShare size={15} />
-              </div>
+              </IconButton>
             </div>
           </Grid>
         </Grid>
@@ -49,6 +104,64 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
           ))}
         </div>
       </CardContent>
+      <Modal open={isVideoOpen} onClose={handleCloseVideo}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}>
+          <video controls style={{ maxWidth: '100%', height: 'auto' }}>
+            <source src={videoUrl} type="video/mp4" />
+            Seu navegador não suporta vídeo HTML5.
+          </video>
+        </div>
+      </Modal>
+      <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
+          <Typography variant="subtitle1" style={{ marginBottom: '20px', textAlign: 'center' }}>Mande uma mensagem direta</Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Seu Nome"
+              name="nome"
+              value={formData.nome}
+              onChange={handleChange}
+              error={formErrors.nome}
+              helperText={formErrors.nome ? 'Campo obrigatório' : ''}
+              style={{ marginBottom: '20px' }}
+            />
+            <TextField
+              fullWidth
+              label="Seu Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={formErrors.email}
+              helperText={formErrors.email ? 'Campo obrigatório' : ''}
+              style={{ marginBottom: '20px' }}
+            />
+            <TextField
+              fullWidth
+              label="Seu Telefone"
+              name="telefone"
+              value={formData.telefone}
+              onChange={handleChange}
+              error={formErrors.telefone}
+              helperText={formErrors.telefone ? 'Campo obrigatório' : ''}
+              style={{ marginBottom: '20px' }}
+            />
+            <TextField
+              fullWidth
+              label="Mensagem"
+              name="mensagem"
+              value={formData.mensagem}
+              onChange={handleChange}
+              error={formErrors.mensagem}
+              helperText={formErrors.mensagem ? 'Campo obrigatório' : ''}
+              multiline
+              rows={4}
+              style={{ marginBottom: '20px' }}
+            />
+            <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
+          </form>
+        </div>
+      </Modal>
     </Card>
   );
 };

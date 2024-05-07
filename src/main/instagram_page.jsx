@@ -1,8 +1,10 @@
 import React from 'react';
-
+import MenuAppBar from '../components/MenuAppBar';
+import Footer from '../components/Footer';
 const InstagramEmbed = () => {
     return (
         <div>
+            <MenuAppBar />
             <blockquote className="instagram-media" data-instgrm-permalink="https://www.instagram.com/imobiliariafilo/" data-instgrm-version="12" style={{ background: "#FFF", border: "0", borderRadius: "3px", boxShadow: "0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)", margin: "1px", maxWidth: "540px", minWidth: "326px", padding: "0", width: "99.375%", height: "undefinedpx", maxHeight: "100%" }}>
                 <div style={{ padding: "16px" }}>
                     <a id="main_link" href="imobiliariafilo" style={{ background: "#FFFFFF", lineHeight: "0", padding: "0 0", textAlign: "center", textDecoration: "none", width: "100%" }} target="_blank">
@@ -60,6 +62,7 @@ const InstagramEmbed = () => {
             <div style={{ overflow: "auto", position: "absolute", height: "0pt", width: "0pt" }}>
                 <a href="https://www.embedista.com/instagramfeed">Embed Instagram Post</a> Code Generator
             </div>
+            <Footer />
         </div>
     );
 }

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { getDatabase, ref, get } from 'firebase/database';
 
 const navigation = [
-  { name: 'Painel', href: '/mappage', current: true },
   { name: 'Nossos Imóveis', href: '/navpage', current: false },
   { name: 'Chat IA', href: '/chat', current: false },
   { name: 'Histórias de sucesso', href: '/instagram', current: false },
