@@ -18,8 +18,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const MensagensComponent = ({ mensagens }) => {
+const MensagensComponent = ({ mensagens, onDeleteMessage }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   const openMessagePopup = (message) => {
@@ -31,22 +32,15 @@ const MensagensComponent = ({ mensagens }) => {
   };
 
   return (
-    <div>
-      <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-        {mensagens.map((mensagem) => (
+    <div style={{}}>
+      <List sx={{ width: '100%', maxWidth: 650, bgcolor: 'background.paper' }}>
+        {mensagens.slice(-10).map((mensagem) => (
           <ListItem key={mensagem.id} disablePadding>
             <ListItemButton dense onClick={() => openMessagePopup(mensagem)}>
               <ListItemText
                 primary={mensagem.nome}
-                secondary={
-                  <React.Fragment>
-                    <span>Email: {mensagem.email}</span>
-                    <br />
-                    <span>Telefone: {mensagem.telefone}</span>
-                    <br />
-                    <span>Mensagem: {mensagem.mensagem}</span>
-                  </React.Fragment>
-                }
+                secondary={`Telefone: ${mensagem.telefone}`}
+                style={{ minHeight: '80px' }}
               />
               <IconButton edge="end" aria-label="comments">
                 <CommentIcon />
@@ -55,12 +49,17 @@ const MensagensComponent = ({ mensagens }) => {
           </ListItem>
         ))}
       </List>
-      <MessagePopup message={selectedMessage} onClose={closeMessagePopup} />
+      <MessagePopup message={selectedMessage} onClose={closeMessagePopup} onDeleteMessage={onDeleteMessage} />
     </div>
   );
 };
 
-const MessagePopup = ({ message, onClose }) => {
+const MessagePopup = ({ message, onClose, onDeleteMessage }) => {
+  const handleDelete = () => {
+    onDeleteMessage(message.id);
+    onClose();
+  };
+
   return (
     <Dialog open={!!message} onClose={onClose}>
       <DialogTitle>{message?.nome}</DialogTitle>
@@ -71,6 +70,9 @@ const MessagePopup = ({ message, onClose }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Fechar</Button>
+        <Button onClick={handleDelete} color="error" startIcon={<DeleteIcon />}>
+          Excluir
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -136,6 +138,17 @@ const ListaImoveisPage = () => {
     }
   };
 
+  const handleDeleteMessage = async (id) => {
+    try {
+      const db = getDatabase();
+      const messageRef = ref(db, `messages/${id}`);
+      await remove(messageRef);
+      setMensagens(mensagens.filter(message => message.id !== id));
+    } catch (error) {
+      console.error('Erro ao excluir mensagem:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchVendidos = async () => {
       try {
@@ -198,17 +211,18 @@ const ListaImoveisPage = () => {
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <DashboardCard title="Quantidade de Imóveis Cadastrados" value={totalImoveis} />
-            <MensagensComponent mensagens={mensagens} />
+            <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ maxHeight: 'calc(100vh - 230px)', overflowY: 'auto' }}>
+              <MensagensComponent mensagens={mensagens} onDeleteMessage={handleDeleteMessage} />
+            </div>
           </div>
-          <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ maxHeight: 'calc(50vh - 200px)', overflowY: 'auto' }}>
+          <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeImoveis.map((imovel) => (
                 <ImovelCard key={imovel.id} {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
               ))}
             </div>
           </div>
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold text-gray-200 mb-4">Lista de Imóveis Vendidos</h2>
+          <div className="rounded-lg border border-gray-400 overflow-hidden mt-6" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeVendidos.map((imovel) => (
                 <ImovelCard key={imovel.id} {...imovel} origin="sold" />
@@ -217,7 +231,6 @@ const ListaImoveisPage = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };
