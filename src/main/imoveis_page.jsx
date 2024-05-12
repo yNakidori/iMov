@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, get, push, remove } from 'firebase/database';
-import Footer from '../components/Footer';
 import AnimatedIcon from '../components/Lottie/Add';
 import House from '../components/Lottie/House';
 import Button from '@mui/material/Button';
@@ -218,7 +217,11 @@ const ListaImoveisPage = () => {
           <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeImoveis.map((imovel) => (
-                <ImovelCard key={imovel.id} {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
+                <ImovelCard key={imovel.id}
+                  valor={imovel.price}
+                  quartos={imovel.bedrooms}
+                  banheiros={imovel.bathrooms}
+                  {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
               ))}
             </div>
           </div>

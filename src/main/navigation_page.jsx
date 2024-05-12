@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '../components/Footer';
 import MenuAppBar from '../components/MenuAppBar';
 import ImovelCardFull from '../components/ImovelCardFull';
 import { getDatabase, ref, get, push } from 'firebase/database';
-import { BiSearch } from 'react-icons/bi';
 import Whats from '../components/Lottie/Whats';
 import { Modal, TextField, Button, Typography } from '@mui/material';
 
@@ -13,7 +12,7 @@ const NavPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [noResults, setNoResults] = useState(false); // State para controlar se nenhum imóvel foi encontrado
+  const [noResults, setNoResults] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
@@ -29,7 +28,6 @@ const NavPage = () => {
     mensagem: true,
     telefone: true
   });
-  const endOfPageRef = useRef(null);
 
   useEffect(() => {
     const fetchImoveis = async () => {
@@ -41,7 +39,7 @@ const NavPage = () => {
           const imoveis = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
           setOriginalListaDeImoveis(imoveis);
           setListaDeImoveis(imoveis);
-          setNoResults(false); // Resetar o estado quando os imóveis são carregados
+          setNoResults(false);
         }
       } catch (error) {
         console.error('Erro ao buscar imóveis:', error);
@@ -53,7 +51,7 @@ const NavPage = () => {
   }, [currentPage]);
 
   const handleScroll = () => {
-    if (endOfPageRef.current && window.innerHeight + window.scrollY >= endOfPageRef.current.offsetTop) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
       setCurrentPage(prevPage => prevPage + 1);
     }
   };
@@ -71,7 +69,6 @@ const NavPage = () => {
       return imovel.neighborhood.toLowerCase().includes(searchTerm);
     });
 
-    // Atualiza a lista de imóveis e o estado de nenhum resultado encontrado
     setListaDeImoveis(searchTerm ? filteredImoveis : originalListaDeImoveis);
     setNoResults(searchTerm && filteredImoveis.length === 0);
   };
@@ -97,11 +94,9 @@ const NavPage = () => {
         const messagesRef = ref(db, 'messages');
         await push(messagesRef, formData);
         setIsFormOpen(false);
-        // Exibir alerta de sucesso
         alert('Formulário enviado com sucesso!');
       } catch (error) {
         console.error('Erro ao enviar o formulário:', error);
-        // Exibir alerta de erro
         alert('Erro ao enviar o formulário. Por favor, tente novamente mais tarde.');
       }
     }
@@ -111,18 +106,21 @@ const NavPage = () => {
     <div className='bg-sky-100 min-h-screen'>
       <MenuAppBar />
       <div className="container mx-auto px-2 py-3 flex justify-center">
-        <div className="relative mb-4">
-          <div className="flex items-center border border-gray-300 rounded-md focus-within:border-blue-400">
+        <div className="flex justify-center w-full">
+          <div className="relative mb-4 flex items-stretch">
             <input
               type="text"
               value={searchTerm}
               onChange={handleSearchChange}
-              placeholder="Pesquisar imóveis..."
-              className="pl-4 py-2 flex-grow rounded-md focus:outline-none"
+              placeholder="Pesquisar bairros..."
+              className="pl-3 py-2 flex-grow rounded-l border border-gray-300 focus:outline-none"
+              style={{ maxWidth: 'calc(120% - 80px)' }}
             />
-            <div className="flex-shrink-0 p-2">
-              <BiSearch className="text-gray-400" />
-            </div>
+            <button className="flex-shrink-0 p-2 border border-l-0 border-gray-300 bg-gray-100 rounded-r">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -145,7 +143,6 @@ const NavPage = () => {
           ))}
           {isLoading && <p>Carregando...</p>}
         </div>
-        <div ref={endOfPageRef}></div>
         <div className="fixed bottom-16 right-10">
           <Whats />
         </div>

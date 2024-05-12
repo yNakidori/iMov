@@ -8,6 +8,7 @@ import InfoRounded from '@mui/icons-material/InfoRounded';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { getDatabase, ref as databaseRef, remove, update, push } from 'firebase/database';
 import { getStorage, ref as storageRef, deleteObject } from 'firebase/storage';
 import Button from '@mui/material/Button';
@@ -17,9 +18,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
-const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets, valorVenda, imageUrls, onImovelVendido, origin }) => {
+const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls, onImovelVendido, origin, valor }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [valorVendaInput, setValorVendaInput] = useState('');
+  const [editedQuartos, setEditedQuartos] = useState(quartos);
+  const [editedBanheiros, setEditedBanheiros] = useState(banheiros);
+  const [editedPets, setEditedPets] = useState(pets);
 
   const coverImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers';
 
@@ -69,20 +73,37 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
     setOpenDialog(false);
   };
 
+  const handleEdit = () => {
+    setOpenDialog(true);
+    // Predefinir os valores editados
+    setEditedQuartos(quartos);
+    setEditedBanheiros(banheiros);
+    setEditedPets(pets);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const db = getDatabase();
+      await update(databaseRef(db, `addresses/${id}`), {
+        quartos: editedQuartos,
+        banheiros: editedBanheiros,
+        pets: editedPets,
+      });
+      console.log(`Imóvel com o ID ${id} foi editado com sucesso.`);
+    } catch (error) {
+      console.error('Erro ao editar o imóvel:', error);
+    }
+    setOpenDialog(false);
+  };
+
   return (
     <Card variant="outlined" sx={{ p: 2, zIndex: 1 }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box>
-              <Typography variant="body2" color="text.secondary" fontWeight="regular">
-                {descricao}
-              </Typography>
-              <Typography fontWeight="bold" noWrap gutterBottom>
-                {nome}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight="regular">
-                Número: {numero} | CEP: {cep}
+              <Typography>
+                {valor ? `R$ ${valor}` : nome}
               </Typography>
               <Typography variant="body2" color="text.secondary" fontWeight="regular">
                 Quartos: {quartos} | Banheiros: {banheiros} | Permite Pets: {pets ? 'Sim' : 'Não'}
@@ -109,6 +130,9 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
               <IconButton onClick={handleDelete} aria-label="delete">
                 <DeleteIcon />
               </IconButton>
+              <IconButton onClick={handleEdit} aria-label="edit">
+                <EditIcon />
+              </IconButton>
               <Button onClick={handleMarkAsSold} variant="outlined" color="primary">
                 Marcar como vendido
               </Button>
@@ -125,25 +149,42 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
         </Grid>
       </Grid>
       <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Marcar Imóvel como Vendido</DialogTitle>
+        <DialogTitle>Editar Imóvel</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            id="valor-venda"
-            label="Valor da Venda (R$)"
+            id="quartos"
+            label="Quartos"
             type="number"
             fullWidth
-            value={valorVendaInput}
-            onChange={(e) => setValorVendaInput(e.target.value)}
+            value={editedQuartos}
+            onChange={(e) => setEditedQuartos(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            id="banheiros"
+            label="Banheiros"
+            type="number"
+            fullWidth
+            value={editedBanheiros}
+            onChange={(e) => setEditedBanheiros(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            id="pets"
+            label="Permite Pets (Sim ou Não)"
+            fullWidth
+            value={editedPets}
+            onChange={(e) => setEditedPets(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="error">
             Cancelar
           </Button>
-          <Button onClick={handleConfirmSold} color="primary">
-            Confirmar
+          <Button onClick={handleSaveEdit} color="primary">
+            Salvar
           </Button>
         </DialogActions>
       </Dialog>
