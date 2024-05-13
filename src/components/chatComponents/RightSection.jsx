@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 
+const openAiAPI = process.env.REACT_APP_OPENAI_KEY;
+
 const RightSection = () => {
     const [message, setMessage] = useState('');
     const [allMessages, setAllMessages] = useState([]);
 
     const sendMessage = async () => {
-        // Adicione verificação para evitar envio de mensagens vazias
+
         if (!message.trim()) return;
 
-        let url = "";
-        let token = "";
+        let url = "https://api.openai.com/v1/chat/completions";
+        let token = `Bearer ${openAiAPI}`;
         let model = "gpt-3.5-turbo";
 
         let messagesToSend = [
@@ -37,15 +39,15 @@ const RightSection = () => {
             ];
             setAllMessages(newAllMessages);
         }
-        setMessage(''); // Limpar o campo de mensagem após o envio
+        setMessage('');
     };
 
     return (
-        <div className="bg-indigo-400 h-full flex flex-col p-4">
+        <div className="bg-gray-600 h-full flex flex-col p-4">
             <div className="flex-1 overflow-y-auto mb-2">
                 {allMessages.map((msg, index) => (
                     <div key={index} className={`flex justify-${msg.role === 'user' ? 'end' : 'start'} p-1 mb-1`}>
-                        <div className={`bg-${msg.role === 'user' ? 'blue' : 'green'}-500 text-white p-2 rounded-lg`}>
+                        <div className={`bg-${msg.role === 'user' ? 'blue' : 'green'}-600 text-white p-2 rounded-lg`}>
                             {msg.content}
                         </div>
                     </div>
@@ -60,7 +62,7 @@ const RightSection = () => {
                     onChange={(e) => setMessage(e.target.value)}
                 />
                 <button
-                    className="bg-blue-500 text-white rounded-md px-4 py-2"
+                    className="bg-blue-600 text-white rounded-md px-4 py-2"
                     onClick={sendMessage}
                 >
                     Send
