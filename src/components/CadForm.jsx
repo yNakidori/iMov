@@ -27,6 +27,7 @@ const CadForm = () => {
   const [bathrooms, setBathrooms] = useState('');
   const [petsAllowed, setPetsAllowed] = useState(false);
   const [garageSpaces, setGarageSpaces] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleCityChange = (event) => {
     setCity(event.target.value);
@@ -52,6 +53,10 @@ const CadForm = () => {
       newImages[index] = event.target.files[0];
       setImages(newImages);
     }
+  };
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value);
   };
 
   const handleSubmit = async (event) => {
@@ -120,6 +125,7 @@ const CadForm = () => {
         bathrooms,
         petsAllowed,
         garageSpaces,
+        description, // Adicionando a descrição ao objeto enviado para o banco de dados
       });
 
       // Limpa os campos do formulário após o envio bem-sucedido
@@ -130,6 +136,7 @@ const CadForm = () => {
       setImages(new Array(6).fill(null));
       setProgress(0);
       setUploading(false);
+      setDescription(''); // Limpa a descrição
 
       // Feedback para o usuário de que o envio foi concluído
       alert('Formulário enviado com sucesso!');
@@ -193,6 +200,21 @@ const CadForm = () => {
               className="mt-4 p-2 border rounded-md w-full"
             />
             {/* Neighborhood */}
+
+            {/* Description */}
+            <TextField
+              label="Descrição"
+              color='secondary'
+              size="small"
+              type="text"
+              name="description"
+              value={description}
+              onChange={handleDescriptionChange}
+              className="mt-4 p-2 border rounded-md w-full"
+              multiline
+              rows={4}
+            />
+            {/* Description */}
 
             {/* Selectors */}
             <div className="grid grid-cols-2 gap-4 mt-4">

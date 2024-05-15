@@ -1,0 +1,17 @@
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(204, 204, 255, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(204, 204, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(204, 204, 255, 0);
+    }
+}
+
+.animated-card.hovered {
+    animation: pulse 1.5s infinite;
+}

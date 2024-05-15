@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, Typography, Grid, Modal, IconButton, TextField, Button } from '@mui/material';
+import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
+import './ImovelCardFull.css'; // Importando o arquivo CSS para aplicar a animação
 
 const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -14,11 +15,12 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
     mensagem: ''
   });
   const [formErrors, setFormErrors] = useState({
-    nome: true,
-    email: true,
-    telefone: true,
-    mensagem: true
+    nome: false,
+    email: false,
+    telefone: false,
+    mensagem: false
   });
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleOpenVideo = () => {
     setIsVideoOpen(true);
@@ -36,14 +38,20 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
     });
     setFormErrors({
       ...formErrors,
-      [name]: value === ''
+      [name]: false
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const hasErrors = Object.values(formErrors).some(error => error);
-    if (!hasErrors) {
+    let errors = {};
+    Object.keys(formData).forEach(key => {
+      if (!formData[key]) {
+        errors[key] = true;
+      }
+    });
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
       try {
         const db = getDatabase();
         const messagesRef = ref(db, 'messages');
@@ -60,7 +68,11 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
   };
 
   return (
-    <Card sx={{ maxWidth: 360, boxShadow: 4, display: 'flex', flexDirection: 'column' }}>
+    <Card
+      className={`animated-card ${isHovered ? 'hovered' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div style={{ position: 'relative', width: '100%', height: '50%', overflow: 'hidden', marginTop: '-2px' }}>
         <img
           src={imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers'}
@@ -115,49 +127,57 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
           <Typography variant="subtitle1" style={{ marginBottom: '20px', textAlign: 'center' }}>Mande uma mensagem direta</Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Seu Nome"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              error={formErrors.nome}
-              helperText={formErrors.nome ? 'Campo obrigatório' : ''}
-              style={{ marginBottom: '20px' }}
-            />
-            <TextField
-              fullWidth
-              label="Seu Email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={formErrors.email}
-              helperText={formErrors.email ? 'Campo obrigatório' : ''}
-              style={{ marginBottom: '20px' }}
-            />
-            <TextField
-              fullWidth
-              label="Seu Telefone"
-              name="telefone"
-              value={formData.telefone}
-              onChange={handleChange}
-              error={formErrors.telefone}
-              helperText={formErrors.telefone ? 'Campo obrigatório' : ''}
-              style={{ marginBottom: '20px' }}
-            />
-            <TextField
-              fullWidth
-              label="Mensagem"
-              name="mensagem"
-              value={formData.mensagem}
-              onChange={handleChange}
-              error={formErrors.mensagem}
-              helperText={formErrors.mensagem ? 'Campo obrigatório' : ''}
-              multiline
-              rows={4}
-              style={{ marginBottom: '20px' }}
-            />
+          <form onSubmit={handleSubmit} className="max-w-sm mx-auto">
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Seu Nome"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                error={formErrors.nome}
+                helperText={formErrors.nome ? 'Campo obrigatório' : ''}
+                variant="standard"
+              />
+            </div>
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Seu Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={formErrors.email}
+                helperText={formErrors.email ? 'Campo obrigatório' : ''}
+                variant="standard"
+              />
+            </div>
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Seu Telefone"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                error={formErrors.telefone}
+                helperText={formErrors.telefone ? 'Campo obrigatório' : ''}
+                variant="standard"
+              />
+            </div>
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Mensagem"
+                name="mensagem"
+                value={formData.mensagem}
+                onChange={handleChange}
+                error={formErrors.mensagem}
+                helperText={formErrors.mensagem ? '' : ''}
+                multiline
+                rows={4}
+                variant="standard"
+              />
+            </div>
             <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
           </form>
         </div>

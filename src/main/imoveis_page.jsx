@@ -191,7 +191,6 @@ const ListaImoveisPage = () => {
             <House />
             <div className="flex items-center">
               <button onClick={togglePopup} className="text-indigo-600 hover:text-indigo-900">
-                Cadastrar Novo Imóvel
                 <AnimatedIcon style={{ width: '32px', height: '32px', marginLeft: '8px' }} />
               </button>
             </div>

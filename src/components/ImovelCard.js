@@ -73,28 +73,6 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
     setOpenDialog(false);
   };
 
-  const handleEdit = () => {
-    setOpenDialog(true);
-    // Predefinir os valores editados
-    setEditedQuartos(quartos);
-    setEditedBanheiros(banheiros);
-    setEditedPets(pets);
-  };
-
-  const handleSaveEdit = async () => {
-    try {
-      const db = getDatabase();
-      await update(databaseRef(db, `addresses/${id}`), {
-        quartos: editedQuartos,
-        banheiros: editedBanheiros,
-        pets: editedPets,
-      });
-      console.log(`Imóvel com o ID ${id} foi editado com sucesso.`);
-    } catch (error) {
-      console.error('Erro ao editar o imóvel:', error);
-    }
-    setOpenDialog(false);
-  };
 
   return (
     <Card variant="outlined" sx={{ p: 2, zIndex: 1 }}>
@@ -130,9 +108,7 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
               <IconButton onClick={handleDelete} aria-label="delete">
                 <DeleteIcon />
               </IconButton>
-              <IconButton onClick={handleEdit} aria-label="edit">
-                <EditIcon />
-              </IconButton>
+
               <Button onClick={handleMarkAsSold} variant="outlined" color="primary">
                 Marcar como vendido
               </Button>
@@ -183,9 +159,7 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
           <Button onClick={handleDialogClose} color="error">
             Cancelar
           </Button>
-          <Button onClick={handleSaveEdit} color="primary">
-            Salvar
-          </Button>
+
         </DialogActions>
       </Dialog>
     </Card>
