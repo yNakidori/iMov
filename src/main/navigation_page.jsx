@@ -103,7 +103,7 @@ const NavPage = () => {
   };
 
   return (
-    <div className='bg-gray-100 min-h-screen'>
+    <div className='bg-sky-100 min-h-screen'>
       <MenuAppBar />
       <div className="container mx-auto px-2 py-3 flex justify-center">
         <div className="flex justify-center w-full">

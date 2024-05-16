@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { getDatabase, ref, get } from 'firebase/database';
-import './FrameComponent.css'; // Importe o arquivo CSS com os estilos
+import 'tailwindcss/tailwind.css'; // Certifique-se de importar o Tailwind CSS
 
 const FrameComponent = () => {
   const [imageUrls, setImageUrls] = useState([]);
@@ -19,10 +19,10 @@ const FrameComponent = () => {
           const urls = childSnapshot.val().imageUrls;
           data.push(...urls);
         });
-        setImageUrls(data);
-        if (data.length > 0) {
+        if (data.length >= 6) {
+          setImageUrls(data.slice(0, 6));
           setMainImageUrl(data[0]);
-          setOtherImageUrls(data.slice(1));
+          setOtherImageUrls(data.slice(1, 6));
         }
       } catch (error) {
         console.error('Erro ao buscar URLs das imagens:', error);
@@ -37,36 +37,32 @@ const FrameComponent = () => {
   };
 
   return (
-    <div className="frame-container">
-      <div className="frame-images-container">
-        <div className="frame-main-image-container">
+    <div className="w-full">
+      <Grid container spacing={2} justifyContent="center" alignItems="center">
+        <Grid item xs={12} md={6}>
           <img
-            className="frame-main-image"
+            className="w-full h-auto md:h-full object-cover"
             loading="lazy"
             alt="Imagem principal"
             src={mainImageUrl}
           />
-        </div>
-        <div className="frame-other-images-container">
-          {otherImageUrls.map((imageUrl, index) => (
-            <img
-              key={index}
-              className="frame-other-image"
-              loading="lazy"
-              alt={`Imagem ${index + 1}`}
-              src={imageUrl}
-              onClick={() => handleImageClick(imageUrl)}
-            />
-          ))}
-        </div>
-      </div>
-      <Button
-        className="frame-see-more-button"
-        disableElevation={true}
-        variant="contained"
-      >
-        Ver mais fotos
-      </Button>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Grid container spacing={2}>
+            {otherImageUrls.map((imageUrl, index) => (
+              <Grid item xs={4} key={index}>
+                <img
+                  className="w-full h-auto cursor-pointer"
+                  loading="lazy"
+                  alt={`Imagem ${index + 1}`}
+                  src={imageUrl}
+                  onClick={() => handleImageClick(imageUrl)}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+      </Grid>
     </div>
   );
 };
