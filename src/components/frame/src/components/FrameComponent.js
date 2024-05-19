@@ -1,70 +1,159 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Grid } from "@mui/material";
-import { getDatabase, ref, get } from 'firebase/database';
-import 'tailwindcss/tailwind.css'; // Certifique-se de importar o Tailwind CSS
+import React, { useState } from 'react';
+import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid } from '@mui/material';
+import { getDatabase, ref, push } from 'firebase/database';
 
-const FrameComponent = () => {
-  const [imageUrls, setImageUrls] = useState([]);
-  const [mainImageUrl, setMainImageUrl] = useState('');
-  const [otherImageUrls, setOtherImageUrls] = useState([]);
+const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '' });
+  const [formErrors, setFormErrors] = useState({});
+  const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    const fetchImageUrls = async () => {
+  const handleOpenVideo = () => setIsVideoOpen(true);
+  const handleCloseVideo = () => setIsVideoOpen(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setFormErrors({ ...formErrors, [name]: false });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = {};
+    Object.keys(formData).forEach(key => !formData[key] && (errors[key] = true));
+    setFormErrors(errors);
+    if (!Object.keys(errors).length) {
       try {
         const db = getDatabase();
-        const addressesRef = ref(db, 'addresses');
-        const snapshot = await get(addressesRef);
-        const data = [];
-        snapshot.forEach((childSnapshot) => {
-          const urls = childSnapshot.val().imageUrls;
-          data.push(...urls);
-        });
-        if (data.length >= 6) {
-          setImageUrls(data.slice(0, 6));
-          setMainImageUrl(data[0]);
-          setOtherImageUrls(data.slice(1, 6));
-        }
+        const messagesRef = ref(db, 'messages');
+        await push(messagesRef, formData);
+        setIsFormOpen(false);
+        alert('Formulário enviado com sucesso!');
       } catch (error) {
-        console.error('Erro ao buscar URLs das imagens:', error);
+        console.error('Erro ao enviar o formulário:', error);
+        alert('Erro ao enviar o formulário. Por favor, tente novamente mais tarde.');
       }
-    };
-
-    fetchImageUrls();
-  }, []);
-
-  const handleImageClick = (imageUrl) => {
-    setMainImageUrl(imageUrl);
+    }
   };
 
   return (
-    <div className="w-full">
-      <Grid container spacing={2} justifyContent="center" alignItems="center">
-        <Grid item xs={12} md={6}>
-          <img
-            className="w-full h-auto md:h-full object-cover"
-            loading="lazy"
-            alt="Imagem principal"
-            src={mainImageUrl}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Grid container spacing={2}>
-            {otherImageUrls.map((imageUrl, index) => (
-              <Grid item xs={4} key={index}>
-                <img
-                  className="w-full h-auto cursor-pointer"
-                  loading="lazy"
-                  alt={`Imagem ${index + 1}`}
-                  src={imageUrl}
-                  onClick={() => handleImageClick(imageUrl)}
-                />
-              </Grid>
-            ))}
+    <Card
+      className={`animated-card ${isHovered ? 'hovered' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div style={{ position: 'relative', width: '100%', height: '50%', overflow: 'hidden', marginTop: '-2px' }}>
+        <img
+          src={imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers'}
+          alt="Capa do Card"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderTopLeftRadius: '0', borderTopRightRadius: '0' }}
+        />
+      </div>
+      <CardContent style={{ flex: 1 }}>
+        <Grid container justifyContent="space-between" alignItems="center" spacing={2}>
+          <Grid item xs={8}>
+            <Typography variant="h6" color="#CCCCFF">{cidade}</Typography>
+            <Typography variant="body2" color="#CCCCFF">{bairro}</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
+              <IconButton onClick={handleOpenVideo} style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+                <FaEye size={15} />
+              </IconButton>
+              <Link to="/visualization">
+                <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+                  <FaPlus size={15} />
+                </div>
+              </Link>
+              <IconButton onClick={() => setIsFormOpen(true)} style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
+                <FaShare size={15} />
+              </IconButton>
+            </div>
           </Grid>
         </Grid>
-      </Grid>
-    </div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+          <Typography variant="h6" color="#CCCCFF">R$ {valor}</Typography>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', gap: '5px' }}>
+          {imageUrls.slice(1, 4).map((imageUrl, index) => (
+            <img
+              key={index}
+              src={imageUrl}
+              alt={`Imagem ${index}`}
+              style={{ width: 'calc(32% - 5px)', height: 'auto', borderRadius: '0' }}
+            />
+          ))}
+        </div>
+      </CardContent>
+      <Modal open={isVideoOpen} onClose={handleCloseVideo}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}>
+          <video controls style={{ maxWidth: '100%', height: 'auto' }}>
+            <source src={videoUrl} type="video/mp4" />
+            Seu navegador não suporta vídeo HTML5.
+          </video>
+        </div>
+      </Modal>
+      <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
+          <Typography variant="subtitle1" style={{ marginBottom: '20px', textAlign: 'center' }}>Mande uma mensagem direta</Typography>
+          <form onSubmit={handleSubmit} className="max-w-sm mx-auto">
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Seu Nome"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                error={formErrors.nome}
+                helperText={formErrors.nome ? 'Campo obrigatório' : ''}
+                variant="standard"
+              />
+            </div>
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Seu Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={formErrors.email}
+                helperText={formErrors.email ? 'Campo obrigatório' : ''}
+                variant="standard"
+              />
+            </div>
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Seu Telefone"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                error={formErrors.telefone}
+                helperText={formErrors.telefone ? 'Campo obrigatório' : ''}
+                variant="standard"
+              />
+            </div>
+            <div className="mb-5">
+              <TextField
+                fullWidth
+                label="Mensagem"
+                name="mensagem"
+                value={formData.mensagem}
+                onChange={handleChange}
+                error={formErrors.mensagem}
+                helperText={formErrors.mensagem ? 'Campo obrigatório' : ''}
+                variant="standard"
+                multiline
+                rows={4}
+              />
+            </div>
+            <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
+          </form>
+        </div>
+      </Modal>
+    </Card>
   );
 };
 
-export default FrameComponent;
+export default ImovelCardFull;

@@ -8,8 +8,7 @@ import InfoRounded from '@mui/icons-material/InfoRounded';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import { getDatabase, ref as databaseRef, remove, update, push } from 'firebase/database';
+import { getDatabase, ref as databaseRef, remove, update, set, get } from 'firebase/database';
 import { getStorage, ref as storageRef, deleteObject } from 'firebase/storage';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -18,12 +17,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
-const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls, onImovelVendido, origin, valor }) => {
+const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets, valorVenda, imageUrls, onImovelVendido, origin }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [valorVendaInput, setValorVendaInput] = useState('');
-  const [editedQuartos, setEditedQuartos] = useState(quartos);
-  const [editedBanheiros, setEditedBanheiros] = useState(banheiros);
-  const [editedPets, setEditedPets] = useState(pets);
 
   const coverImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers';
 
@@ -57,11 +53,19 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
   const handleConfirmSold = async () => {
     try {
       const db = getDatabase();
-      await update(databaseRef(db, `addresses/${id}`), {
-        vendido: true,
-        valorVenda: Number(valorVendaInput),
-      });
-      console.log(`Imóvel com o ID ${id} foi marcado como vendido com sucesso.`);
+      const addressRef = databaseRef(db, `addresses/${id}`);
+      const soldRef = databaseRef(db, `vendidos/${id}`);
+
+      const snapshot = await get(addressRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        await set(soldRef, {
+          ...data,
+          vendido: true,
+          valorVenda: Number(valorVendaInput),
+        });
+        await remove(addressRef);
+      }
       onImovelVendido(id);
     } catch (error) {
       console.error('Erro ao marcar o imóvel como vendido:', error);
@@ -73,15 +77,20 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
     setOpenDialog(false);
   };
 
-
   return (
     <Card variant="outlined" sx={{ p: 2, zIndex: 1 }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box>
-              <Typography>
-                {valor ? `R$ ${valor}` : nome}
+              <Typography variant="body2" color="text.secondary" fontWeight="regular">
+                {descricao}
+              </Typography>
+              <Typography fontWeight="bold" noWrap gutterBottom>
+                {nome}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight="regular">
+                Número: {numero} | CEP: {cep}
               </Typography>
               <Typography variant="body2" color="text.secondary" fontWeight="regular">
                 Quartos: {quartos} | Banheiros: {banheiros} | Permite Pets: {pets ? 'Sim' : 'Não'}
@@ -108,10 +117,11 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
               <IconButton onClick={handleDelete} aria-label="delete">
                 <DeleteIcon />
               </IconButton>
-
-              <Button onClick={handleMarkAsSold} variant="outlined" color="primary">
-                Marcar como vendido
-              </Button>
+              {origin === 'available' && (
+                <Button onClick={handleMarkAsSold} variant="outlined" color="primary">
+                  Marcar como vendido
+                </Button>
+              )}
             </Box>
           </Box>
         </Grid>
@@ -125,41 +135,26 @@ const ImovelCard = ({ id, nome, quartos, banheiros, pets, valorVenda, imageUrls,
         </Grid>
       </Grid>
       <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Editar Imóvel</DialogTitle>
+        <DialogTitle>Marcar Imóvel como Vendido</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            id="quartos"
-            label="Quartos"
+            id="valor-venda"
+            label="Valor da Venda (R$)"
             type="number"
             fullWidth
-            value={editedQuartos}
-            onChange={(e) => setEditedQuartos(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            id="banheiros"
-            label="Banheiros"
-            type="number"
-            fullWidth
-            value={editedBanheiros}
-            onChange={(e) => setEditedBanheiros(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            id="pets"
-            label="Permite Pets (Sim ou Não)"
-            fullWidth
-            value={editedPets}
-            onChange={(e) => setEditedPets(e.target.value)}
+            value={valorVendaInput}
+            onChange={(e) => setValorVendaInput(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="error">
             Cancelar
           </Button>
-
+          <Button onClick={handleConfirmSold} color="primary">
+            Confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Card>

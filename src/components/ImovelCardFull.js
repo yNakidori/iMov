@@ -3,65 +3,36 @@ import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
-import './ImovelCardFull.css'; // Importando o arquivo CSS para aplicar a animação
+import './ImovelCardFull.css';
 
 const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    telefone: '',
-    mensagem: ''
-  });
-  const [formErrors, setFormErrors] = useState({
-    nome: false,
-    email: false,
-    telefone: false,
-    mensagem: false
-  });
+  const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '' });
+  const [formErrors, setFormErrors] = useState({});
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleOpenVideo = () => {
-    setIsVideoOpen(true);
-  };
-
-  const handleCloseVideo = () => {
-    setIsVideoOpen(false);
-  };
-
+  const handleOpenVideo = () => setIsVideoOpen(true);
+  const handleCloseVideo = () => setIsVideoOpen(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    setFormErrors({
-      ...formErrors,
-      [name]: false
-    });
+    setFormData({ ...formData, [name]: value });
+    setFormErrors({ ...formErrors, [name]: false });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let errors = {};
-    Object.keys(formData).forEach(key => {
-      if (!formData[key]) {
-        errors[key] = true;
-      }
-    });
+    const errors = {};
+    Object.keys(formData).forEach(key => !formData[key] && (errors[key] = true));
     setFormErrors(errors);
-    if (Object.keys(errors).length === 0) {
+    if (!Object.keys(errors).length) {
       try {
         const db = getDatabase();
         const messagesRef = ref(db, 'messages');
         await push(messagesRef, formData);
         setIsFormOpen(false);
-        // Exibir alerta de sucesso
         alert('Formulário enviado com sucesso!');
       } catch (error) {
         console.error('Erro ao enviar o formulário:', error);
-        // Exibir alerta de erro
         alert('Erro ao enviar o formulário. Por favor, tente novamente mais tarde.');
       }
     }
@@ -75,8 +46,8 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
     >
       <div style={{ position: 'relative', width: '100%', height: '50%', overflow: 'hidden', marginTop: '-2px' }}>
         <img
-          src={imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers'}
-          alt={`Capa do Card`}
+          src={imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers'}
+          alt="Capa do Card"
           style={{ width: '100%', height: '100%', objectFit: 'cover', borderTopLeftRadius: '0', borderTopRightRadius: '0' }}
         />
       </div>
@@ -106,7 +77,7 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
           <Typography variant="h6" color="#CCCCFF">R$ {valor}</Typography>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', gap: '5px' }}>
-          {imageUrls && imageUrls.slice(1, 4).map((imageUrl, index) => (
+          {imageUrls.slice(1, 4).map((imageUrl, index) => (
             <img
               key={index}
               src={imageUrl}
@@ -172,7 +143,6 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
                 value={formData.mensagem}
                 onChange={handleChange}
                 error={formErrors.mensagem}
-                helperText={formErrors.mensagem ? '' : ''}
                 multiline
                 rows={4}
                 variant="standard"
