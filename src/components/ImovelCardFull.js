@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid } from '@mui/material';
+import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
 import './ImovelCardFull.css';
 
@@ -43,48 +43,49 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
       className={`animated-card ${isHovered ? 'hovered' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{ maxWidth: '300px', margin: '10px' }}
     >
-      <div style={{ position: 'relative', width: '100%', height: '50%', overflow: 'hidden', marginTop: '-2px' }}>
+      <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
         <img
           src={imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers'}
           alt="Capa do Card"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderTopLeftRadius: '0', borderTopRightRadius: '0' }}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
-      <CardContent style={{ flex: 1 }}>
-        <Grid container justifyContent="space-between" alignItems="center" spacing={2}>
-          <Grid item xs={8}>
-            <Typography variant="h6" color="#CCCCFF">{cidade}</Typography>
-            <Typography variant="body2" color="#CCCCFF">{bairro}</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
-              <IconButton onClick={handleOpenVideo} style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
-                <FaEye size={15} />
-              </IconButton>
-              <Link to="/visualization">
-                <div style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
-                  <FaPlus size={15} />
-                </div>
-              </Link>
-              <IconButton onClick={() => setIsFormOpen(true)} style={{ border: '2px solid #CCCCFF', borderRadius: '50%', padding: '8px' }}>
-                <FaShare size={15} />
-              </IconButton>
-            </div>
-          </Grid>
-        </Grid>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-          <Typography variant="h6" color="#CCCCFF">R$ {valor}</Typography>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', gap: '5px' }}>
+      <CardContent style={{ padding: '10px' }}>
+        <Typography variant="h6" style={{ color: '#000', fontWeight: 'bold' }}>
+          {bairro}
+        </Typography>
+        <Typography variant="body2" style={{ color: '#000', fontWeight: 'bold' }}>
+          {cidade}
+        </Typography>
+        <Typography variant="h6" style={{ color: '#000', marginTop: '10px' }}>
+          R$ {valor}
+        </Typography>
+        <Grid container spacing={1} style={{ marginTop: '10px' }}>
           {imageUrls.slice(1, 4).map((imageUrl, index) => (
-            <img
-              key={index}
-              src={imageUrl}
-              alt={`Imagem ${index}`}
-              style={{ width: 'calc(32% - 5px)', height: 'auto', borderRadius: '0' }}
-            />
+            <Grid item xs={4} key={index}>
+              <CardMedia
+                component="img"
+                image={imageUrl}
+                alt={`Imagem ${index}`}
+                style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+              />
+            </Grid>
           ))}
+        </Grid>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+          <IconButton onClick={handleOpenVideo} style={{ padding: '5px' }}>
+            <FaEye size={20} />
+          </IconButton>
+          <Link to="/visualization">
+            <IconButton style={{ padding: '5px' }}>
+              <FaPlus size={20} />
+            </IconButton>
+          </Link>
+          <IconButton onClick={() => setIsFormOpen(true)} style={{ padding: '5px' }}>
+            <FaShare size={20} />
+          </IconButton>
         </div>
       </CardContent>
       <Modal open={isVideoOpen} onClose={handleCloseVideo}>
