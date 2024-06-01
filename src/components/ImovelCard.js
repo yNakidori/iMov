@@ -8,7 +8,7 @@ import InfoRounded from '@mui/icons-material/InfoRounded';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getDatabase, ref as databaseRef, remove, update, set, get } from 'firebase/database';
+import { getDatabase, ref as databaseRef, remove, set, get } from 'firebase/database';
 import { getStorage, ref as storageRef, deleteObject } from 'firebase/storage';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -17,7 +17,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
-const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets, valorVenda, imageUrls, onImovelVendido, origin }) => {
+const ImovelCard = ({ id, city, neighborhood, price, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description, imageUrls, onImovelVendido, origin }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [valorVendaInput, setValorVendaInput] = useState('');
 
@@ -83,21 +83,15 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
         <Grid item xs={12}>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box>
-              <Typography variant="body2" color="text.secondary" fontWeight="regular">
-                {descricao}
-              </Typography>
               <Typography fontWeight="bold" noWrap gutterBottom>
-                {nome}
+                {city}, {neighborhood}
               </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight="regular">
-                Número: {numero} | CEP: {cep}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight="regular">
-                Quartos: {quartos} | Banheiros: {banheiros} | Permite Pets: {pets ? 'Sim' : 'Não'}
+              <Typography variant="body2" color="text.secondary" fontWeight="bold">
+                Preço: R$ {price}
               </Typography>
               {origin === 'sold' && (
                 <Typography variant="body2" color="text.secondary" fontWeight="bold">
-                  Valor da Venda: R$ {valorVenda}
+                  Valor da Venda: R$ {valorVendaInput}
                 </Typography>
               )}
             </Box>
@@ -128,7 +122,7 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
         <Grid item xs={12}>
           <CardMedia
             component="img"
-            alt={`${nome} cover`}
+            alt={`${city} ${neighborhood} cover`}
             src={coverImage}
             sx={{ borderRadius: '6px', width: '100%' }}
           />
@@ -162,3 +156,4 @@ const ImovelCard = ({ id, nome, descricao, numero, cep, quartos, banheiros, pets
 };
 
 export default ImovelCard;
+

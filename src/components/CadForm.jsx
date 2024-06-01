@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { getDatabase, ref as databaseRef, push } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { Button, TextField, Box, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { Send as SendIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import { Button, TextField, Box, Typography, Select, MenuItem, FormControl, InputLabel, Grid, Checkbox, FormControlLabel } from '@mui/material';
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 
 const CadForm = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +16,7 @@ const CadForm = () => {
     bedrooms: '',
     bathrooms: '',
     petsAllowed: false,
+    furnished: false,
     garageSpaces: '',
     description: ''
   });
@@ -23,8 +24,13 @@ const CadForm = () => {
   const [progress, setProgress] = useState(0);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
+    const { name, value, type, checked, files } = e.target;
+    if (type === 'checkbox') {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: checked
+      }));
+    } else if (files) {
       setFormData((prevData) => ({
         ...prevData,
         [name]: files[0]
@@ -47,7 +53,7 @@ const CadForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const { city, neighborhood, price, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, garageSpaces, description } = formData;
+    const { city, neighborhood, price, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
 
     if (!images.some(image => image)) {
       alert('Selecione pelo menos uma imagem.');
@@ -92,6 +98,7 @@ const CadForm = () => {
         bedrooms,
         bathrooms,
         petsAllowed,
+        furnished,
         garageSpaces,
         description
       });
@@ -107,6 +114,7 @@ const CadForm = () => {
         bedrooms: '',
         bathrooms: '',
         petsAllowed: false,
+        furnished: false,
         garageSpaces: '',
         description: ''
       });
@@ -122,179 +130,183 @@ const CadForm = () => {
     window.location.reload();
   };
 
-  const { city, neighborhood, price, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, garageSpaces, description } = formData;
+  const { city, neighborhood, price, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
   const allFieldsReady = city && neighborhood && price && images.some(image => image) && !uploading;
 
   return (
-    <div className="max-h-screen flex flex-col items-center justify-center rounded-md">
-      <Box sx={{ backgroundColor: 'white', borderRadius: '16px', padding: '16px' }}>
-        <div className="p-4 rounded shadow-md max-w-3xl w-full mx-auto mt-4">
-          <form onSubmit={handleSubmit}>
-
+    <Box sx={{ maxWidth: '600px', margin: 'auto', padding: '16px', backgroundColor: 'white', borderRadius: '16px', boxShadow: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Adicionar um imóvel
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
             <TextField
-              label="Preço"
-              color='secondary'
-              size="small"
-              type="text"
+              label="Price"
+              variant="outlined"
+              fullWidth
               name="price"
               value={price}
               onChange={handleChange}
-              className="mt-1 p-2 border rounded-md w-full"
-              style={{ marginBottom: '16px' }}
               InputProps={{ startAdornment: <Typography>R$</Typography> }}
             />
-
+          </Grid>
+          <Grid item xs={6}>
             <TextField
-              label="Cidade"
-              color='secondary'
-              size="small"
-              type="text"
+              label="City"
+              variant="outlined"
+              fullWidth
               name="city"
               value={city}
               onChange={handleChange}
-              className="mt-4 p-2 border rounded-md w-full"
-              style={{ marginBottom: '16px' }}
             />
-
+          </Grid>
+          <Grid item xs={6}>
             <TextField
-              label="Bairro"
-              color='secondary'
-              size="small"
-              type="text"
+              label="Neighborhood"
+              variant="outlined"
+              fullWidth
               name="neighborhood"
               value={neighborhood}
               onChange={handleChange}
-              className="mt-4 p-2 border rounded-md w-full"
-              style={{ marginBottom: '16px' }}
             />
-
+          </Grid>
+          <Grid item xs={12}>
             <TextField
-              label="Descrição"
-              color='secondary'
-              size="small"
-              type="text"
+              label="Description"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={4}
               name="description"
               value={description}
               onChange={handleChange}
-              className="mt-4 p-2 border rounded-md w-full"
-              multiline
-              rows={4}
-              style={{ marginBottom: '16px' }}
             />
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <FormControl variant="standard" style={{ marginBottom: '16px' }}>
-                <InputLabel id="saleOrRentLabel">Venda ou Aluguel</InputLabel>
-                <Select
-                  labelId="saleOrRentLabel"
-                  name="saleOrRent"
-                  value={saleOrRent}
-                  onChange={handleChange}
-                  className="w-full"
-                >
-                  <MenuItem value="venda">Venda</MenuItem>
-                  <MenuItem value="aluguel">Aluguel</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl variant="standard" style={{ marginBottom: '16px' }}>
-                <InputLabel id="propertyTypeLabel">Tipo de Propriedade</InputLabel>
-                <Select
-                  labelId="propertyTypeLabel"
-                  name="propertyType"
-                  value={propertyType}
-                  onChange={handleChange}
-                  className="w-full"
-                >
-                  <MenuItem value="casa">Casa</MenuItem>
-                  <MenuItem value="apartamento">Apartamento</MenuItem>
-                  <MenuItem value="condominio">Condomínio</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              <TextField
-                label="Número de Quartos"
-                color='secondary'
-                size="small"
-                type="number"
-                name="bedrooms"
-                value={bedrooms}
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Sale or Rent</InputLabel>
+              <Select
+                name="saleOrRent"
+                value={saleOrRent}
                 onChange={handleChange}
-                className="mt-1 p-2 border rounded-md"
-                style={{ marginBottom: '16px' }}
-              />
-              <TextField
-                label="Número de Banheiros"
-                color='secondary'
-                size="small"
-                type="number"
-                name="bathrooms"
-                value={bathrooms}
+                label="Sale or Rent"
+              >
+                <MenuItem value="venda">Venda</MenuItem>
+                <MenuItem value="aluguel">Aluguel</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Property Type</InputLabel>
+              <Select
+                name="propertyType"
+                value={propertyType}
                 onChange={handleChange}
-                className="mt-1 p-2 border rounded-md"
-                style={{ marginBottom: '16px' }}
-              />
-              <TextField
-                label="Vagas de Garagem"
-                color='secondary'
-                size="small"
-                type="number"
-                name="garageSpaces"
-                value={garageSpaces}
-                onChange={handleChange}
-                className="mt-1 p-2 border rounded-md"
-                style={{ marginBottom: '16px' }}
-              />
-            </div>
-
-            <div className="mt-4">
-              <TextField
-                label="Vídeo (MP4)"
-                color='secondary'
-                size="small"
-                type="file"
-                name="video"
-                accept="video/mp4"
-                onChange={handleChange}
-                className="mt-1 p-2 border rounded-md w-full"
-                InputProps={{ startAdornment: <CloudUploadIcon /> }}
-                style={{ marginBottom: '16px' }}
-              />
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                {images.map((_, index) => (
-                  <div key={index}>
-                    <label htmlFor={`image${index + 1}`}>
-                      <Button
-                        variant="contained"
-                        component="span"
-                        startIcon={<CloudUploadIcon />}
-                      >
-                        Imagem {index + 1}
-                      </Button>
-                      <input
-                        type="file"
-                        id={`image${index + 1}`}
-                        name={`image${index + 1}`}
-                        accept="image/*"
-                        onChange={handleImageChange(index)}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-center">
-              <Button type='submit' variant='contained' endIcon={<SendIcon />} disabled={!allFieldsReady}>
-                Enviar
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Box>
-    </div>
+                label="Property Type"
+              >
+                <MenuItem value="casa">Casa</MenuItem>
+                <MenuItem value="apartamento">Apartamento</MenuItem>
+                <MenuItem value="condominio">Condomínio</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="Bedrooms"
+              variant="outlined"
+              fullWidth
+              type="number"
+              name="bedrooms"
+              value={bedrooms}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="Bathrooms"
+              variant="outlined"
+              fullWidth
+              type="number"
+              name="bathrooms"
+              value={bathrooms}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              label="Garage Spaces"
+              variant="outlined"
+              fullWidth
+              type="number"
+              name="garageSpaces"
+              value={garageSpaces}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlLabel
+              control={<Checkbox checked={petsAllowed} onChange={handleChange} name="petsAllowed" />}
+              label="Aceita Pets"
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlLabel
+              control={<Checkbox checked={furnished} onChange={handleChange} name="furnished" />}
+              label="Mobiliado"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Video (MP4)"
+              variant="outlined"
+              fullWidth
+              type="file"
+              name="video"
+              accept="video/mp4"
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="subtitle1">Images</Typography>
+            <Grid container spacing={2}>
+              {images.map((_, index) => (
+                <Grid item xs={4} key={index}>
+                  <label htmlFor={`image${index + 1}`}>
+                    <Button
+                      variant="contained"
+                      component="span"
+                      startIcon={<CloudUploadIcon />}
+                      fullWidth
+                    >
+                      Image {index + 1}
+                    </Button>
+                    <input
+                      type="file"
+                      id={`image${index + 1}`}
+                      name={`image${index + 1}`}
+                      accept="image/*"
+                      onChange={handleImageChange(index)}
+                      className="hidden"
+                    />
+                  </label>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+          <Grid item xs={12} display="flex" justifyContent="space-between" mt={2}>
+            <Button variant="outlined" color="secondary">
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary" disabled={!allFieldsReady}>
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Box>
   );
 };
 

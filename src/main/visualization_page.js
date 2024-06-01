@@ -1,118 +1,105 @@
 import React from 'react';
-import { Container, Grid, Typography, Button, Card, CardMedia, CardContent, IconButton } from '@mui/material';
+import MenuAppBar from '../components/MenuAppBar';
+import { Container, Grid, Typography, Card, CardMedia, CardContent, IconButton } from '@mui/material';
 import { FaHeart, FaShare } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 
 const VisualizationPage = () => {
-    // Exemplo de dados do imóvel (substitua pelos dados reais)
-    const imovel = {
-        titulo: "Apartamento para alugar com 56m², 2 quartos e 1 vaga",
-        total: 4931,
-        aluguel: 4150,
-        condominio: 621,
-        iptu: 0,
-        seguroIncendio: 53,
-        taxaServico: 107,
-        endereco: "Rua Bueno de Andrade, Aclimação - São Paulo",
-        descricao: "Imóvel aconchegante para alugar com 2 quartos, sendo 1 suíte, e 2 banheiros no total...",
-        imagens: [
-            "https://via.placeholder.com/800x600",
-            "https://via.placeholder.com/800x600",
-            "https://via.placeholder.com/800x600"
-        ],
-        detalhes: {
-            area: "56 m²",
-            quartos: "2 quartos (1 suíte)",
-            banheiros: "2 banheiros",
-            vagas: "1 vaga",
-            andar: "4º a 7º andar",
-            aceitaPet: "Aceita pet",
-            mobiliado: "Sem mobília",
-            proximidade: "Não próximo"
-        }
-    };
+    const location = useLocation();
+    const { imovel } = location.state || {};
+
+    if (!imovel) {
+        return <Typography variant="h6">Imóvel não encontrado.</Typography>;
+    }
+
+    const {
+        area = 'Não informado',
+        vagas = 'Não informado',
+        aceitaPet = 'Não informado',
+        mobiliado = 'Não informado'
+    } = imovel.detalhes || {};
 
     return (
-        <Container maxWidth="lg" style={{ marginTop: '20px' }}>
-            <Grid container spacing={4}>
-                <Grid item xs={12} md={7}>
-                    <Typography variant="h4" gutterBottom>
-                        {imovel.titulo}
-                    </Typography>
-                    <Typography variant="h6" color="textSecondary">
-                        Total R$ {imovel.total}
-                    </Typography>
-                    <Typography variant="body1" color="textSecondary" gutterBottom>
-                        Aluguel R$ {imovel.aluguel}
-                    </Typography>
-                    <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
-                        Agendar visita
-                    </Button>
-                    <Button variant="outlined" color="primary">
-                        Fazer proposta
-                    </Button>
-                    <div style={{ marginTop: '20px' }}>
-                        <Grid container spacing={2}>
-                            {imovel.imagens.map((image, index) => (
-                                <Grid item xs={12} sm={4} key={index}>
-                                    <Card>
-                                        <CardMedia component="img" image={image} alt={`Imagem ${index + 1}`} />
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </div>
-                </Grid>
-                <Grid item xs={12} md={5}>
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6" gutterBottom>
-                                Endereço
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary" gutterBottom>
-                                {imovel.endereco}
-                            </Typography>
-                            <Typography variant="h6" gutterBottom>
-                                Preços e taxas
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Aluguel: R$ {imovel.aluguel}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Condomínio: R$ {imovel.condominio}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                IPTU: R$ {imovel.iptu}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Seguro Incêndio: R$ {imovel.seguroIncendio}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Taxa de Serviço: R$ {imovel.taxaServico}
-                            </Typography>
-                            <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
-                                Detalhes
-                            </Typography>
-                            {Object.keys(imovel.detalhes).map((key) => (
-                                <Typography variant="body2" color="textSecondary" key={key}>
-                                    {imovel.detalhes[key]}
+        <>
+            <MenuAppBar />
+            <Container maxWidth="lg" style={{ marginTop: '20px' }}>
+                <Grid container spacing={4}>
+                    <Grid item xs={12} md={7}>
+                        <Typography variant="h4" gutterBottom>
+                            {imovel.bairro}, {imovel.cidade}
+                        </Typography>
+                        <Typography variant="h6" color="textSecondary">
+                            Preço: R$ {imovel.valor}
+                        </Typography>
+                        <div style={{ marginTop: '20px' }}>
+                            <Grid container spacing={2}>
+                                {imovel.imageUrls.map((image, index) => (
+                                    <Grid item xs={12} sm={4} key={index}>
+                                        <Card>
+                                            <CardMedia component="img" image={image} alt={`Imagem ${index + 1}`} />
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </div>
+                    </Grid>
+                    <Grid item xs={12} md={5}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom>
+                                    Vídeo do Imóvel
                                 </Typography>
-                            ))}
-                            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
-                                <IconButton>
-                                    <FaHeart />
-                                </IconButton>
-                                <IconButton>
-                                    <FaShare />
-                                </IconButton>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
+                                    <video controls style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}>
+                                        <source src={imovel.videoUrl} type="video/mp4" />
+                                        Seu navegador não suporta vídeo HTML5.
+                                    </video>
+                                </div>
+                                <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
+                                    Descrição
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary" gutterBottom>
+                                    {imovel.descricao}
+                                </Typography>
+                                <Typography variant="h6" gutterBottom>
+                                    Detalhes do Imóvel
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Quartos: {imovel.quartos}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Banheiros: {imovel.banheiros}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Vagas: {vagas}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Área: {area}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Aceita Pet: {aceitaPet}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    Mobiliado: {mobiliado}
+                                </Typography>
+                                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <IconButton>
+                                        <FaHeart />
+                                    </IconButton>
+                                    <IconButton>
+                                        <FaShare />
+                                    </IconButton>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Grid>
                 </Grid>
-            </Grid>
-            <Typography variant="body1" style={{ marginTop: '20px' }}>
-                {imovel.descricao}
-            </Typography>
-        </Container>
+                <Typography variant="body1" style={{ marginTop: '20px' }}>
+                    {imovel.descricao}
+                </Typography>
+            </Container>
+        </>
+
     );
 };
 

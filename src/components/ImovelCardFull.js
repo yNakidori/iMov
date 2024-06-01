@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
 import './ImovelCardFull.css';
 
-const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
+const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descricao, quartos, banheiros, detalhes }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '' });
   const [formErrors, setFormErrors] = useState({});
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpenVideo = () => setIsVideoOpen(true);
   const handleCloseVideo = () => setIsVideoOpen(false);
@@ -36,6 +37,10 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
         alert('Erro ao enviar o formulário. Por favor, tente novamente mais tarde.');
       }
     }
+  };
+
+  const handleViewDetails = () => {
+    navigate('/visualization', { state: { imovel: { id, cidade, bairro, valor, imageUrls, videoUrl, descricao, quartos, banheiros, detalhes } } });
   };
 
   return (
@@ -78,11 +83,9 @@ const ImovelCardFull = ({ cidade, bairro, valor, imageUrls, videoUrl }) => {
           <IconButton onClick={handleOpenVideo} style={{ padding: '5px' }}>
             <FaEye size={20} />
           </IconButton>
-          <Link to="/visualization">
-            <IconButton style={{ padding: '5px' }}>
-              <FaPlus size={20} />
-            </IconButton>
-          </Link>
+          <IconButton onClick={handleViewDetails} style={{ padding: '5px' }}>
+            <FaPlus size={20} />
+          </IconButton>
           <IconButton onClick={() => setIsFormOpen(true)} style={{ padding: '5px' }}>
             <FaShare size={20} />
           </IconButton>
