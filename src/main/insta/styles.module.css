@@ -1,0 +1,26 @@
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.itens {
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: 0.4s;
+}
+
+.itens img,
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.itens:hover {
+    filter: brightness(1.3);
+}

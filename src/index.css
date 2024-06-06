@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Roboto Poppins Black */
+@font-face {
+    font-family: 'Poppins-Black';
+    src: url('./components/fonts/Poppins/Poppins-Black.ttf') format('truetype');
+    font-weight: 900;
+    /* Black weight is typically 900 */
+    font-style: italic;
+}
+
+/* Roboto Black Italic */
+@font-face {
+    font-family: 'Roboto-Light';
+    src: url('./components/fonts/Roboto/Roboto-Black.ttf') format('truetype');
+    font-weight: 900;
+    /* Black weight is typically 900 */
+    font-style: italic;
+}
+
+/*  Open Sans Italic */
+@font-face {
+    font-family: 'OpenSans-Italic';
+    src: url('./components/fonts/Open_Sans/static/OpenSans-MediumItalic.ttf') format('truetype');
+    font-weight: 900;
+    /* Black weight is typically 900 */
+    font-style: italic;
+}
