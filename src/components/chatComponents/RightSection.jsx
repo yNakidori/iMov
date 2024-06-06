@@ -43,11 +43,11 @@ const RightSection = () => {
     };
 
     return (
-        <div className="bg-gray-600 h-full flex flex-col p-4">
+        <div className="bg-gray-800 h-full flex flex-col p-4" style={{ fontFamily: 'Roboto, sans-serif' }}>
             <div className="flex-1 overflow-y-auto mb-2">
                 {allMessages.map((msg, index) => (
                     <div key={index} className={`flex justify-${msg.role === 'user' ? 'end' : 'start'} p-1 mb-1`}>
-                        <div className={`bg-${msg.role === 'user' ? 'blue' : 'green'}-600 text-white p-2 rounded-lg`}>
+                        <div className={`bg-${msg.role === 'user' ? 'blue' : 'green'}-600 text-white p-2 rounded-lg max-w-xs`}>
                             {msg.content}
                         </div>
                     </div>

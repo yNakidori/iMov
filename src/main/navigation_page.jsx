@@ -4,7 +4,7 @@ import MenuAppBar from '../components/MenuAppBar';
 import ImovelCardFull from '../components/ImovelCardFull';
 import { getDatabase, ref, get, push } from 'firebase/database';
 import Whats from '../components/Lottie/Whats';
-import { Modal, TextField, Button, Typography } from '@mui/material';
+import { Modal, TextField, Button, Typography, CircularProgress } from '@mui/material';
 
 const NavPage = () => {
   const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]);
@@ -103,18 +103,17 @@ const NavPage = () => {
   };
 
   return (
-    <div className='bg-sky-100 min-h-screen'>
+    <div className='bg-gray-100 min-h-screen'>
       <MenuAppBar />
-      <div className="container mx-auto px-2 py-3 flex justify-center">
-        <div className="flex justify-center w-full">
-          <div className="relative mb-4 flex items-stretch">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex justify-center mb-4">
+          <div className="relative flex items-stretch w-full max-w-lg">
             <input
               type="text"
               value={searchTerm}
               onChange={handleSearchChange}
               placeholder="Pesquisar bairros..."
-              className="pl-3 py-2 flex-grow rounded-l border border-gray-300 focus:outline-none"
-              style={{ maxWidth: 'calc(120% - 80px)' }}
+              className="pl-4 py-2 flex-grow rounded-l border border-gray-300 focus:outline-none"
             />
             <button className="flex-shrink-0 p-2 border border-l-0 border-gray-300 bg-gray-100 rounded-r">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,12 +122,10 @@ const NavPage = () => {
             </button>
           </div>
         </div>
-      </div>
-      <div className="container mx-auto px-4 py-8">
         {noResults && (
           <p className="text-center text-red-500">Nenhum imóvel encontrado</p>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {listaDeImoveis.map((imovel, index) => (
             <ImovelCardFull
               key={imovel.id}
@@ -141,7 +138,11 @@ const NavPage = () => {
               banheiros={imovel.bathrooms}
             />
           ))}
-          {isLoading && <p>Carregando...</p>}
+          {isLoading && (
+            <div className="col-span-full flex justify-center">
+              <CircularProgress />
+            </div>
+          )}
         </div>
         <div className="fixed bottom-16 right-10">
           <Whats />
@@ -149,8 +150,8 @@ const NavPage = () => {
       </div>
       <Footer />
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
-          <Typography variant="subtitle1" style={{ marginBottom: '20px', textAlign: 'center' }}>Mande uma mensagem direta</Typography>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md mx-auto mt-20">
+          <Typography variant="h6" className="mb-4 text-center">Mande uma mensagem direta</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
@@ -160,7 +161,7 @@ const NavPage = () => {
               onChange={handleChange}
               error={formErrors.nome}
               helperText={formErrors.nome ? 'Campo obrigatório' : ''}
-              style={{ marginBottom: '20px' }}
+              className="mb-4"
             />
             <TextField
               fullWidth
@@ -170,7 +171,7 @@ const NavPage = () => {
               onChange={handleChange}
               error={formErrors.email}
               helperText={formErrors.email ? 'Campo obrigatório' : ''}
-              style={{ marginBottom: '20px' }}
+              className="mb-4"
             />
             <TextField
               fullWidth
@@ -180,7 +181,7 @@ const NavPage = () => {
               onChange={handleChange}
               error={formErrors.telefone}
               helperText={formErrors.telefone ? 'Campo obrigatório' : ''}
-              style={{ marginBottom: '20px' }}
+              className="mb-4"
             />
             <TextField
               fullWidth
@@ -192,7 +193,7 @@ const NavPage = () => {
               helperText={formErrors.mensagem ? 'Campo obrigatório' : ''}
               multiline
               rows={4}
-              style={{ marginBottom: '20px' }}
+              className="mb-4"
             />
             <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
           </form>
