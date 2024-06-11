@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { FaEye, FaPlus, FaShare } from 'react-icons/fa';
+import { FaVideo, FaPlus, FaShareAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Modal, IconButton, TextField, Button, Typography, Card, CardContent, Grid, CardMedia } from '@mui/material';
+import { Modal, IconButton, TextField, Button, Typography, Card } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
 import './ImovelCardFull.css';
 
@@ -48,7 +48,7 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
       className={`animated-card ${isHovered ? 'hovered' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ maxWidth: '300px', margin: '10px' }}
+      style={{ maxWidth: '300px', margin: '10px', borderRadius: '10px', overflow: 'hidden' }} // Removida a altura fixa
     >
       <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
         <img
@@ -56,41 +56,30 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
           alt="Capa do Card"
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
-      </div>
-      <CardContent style={{ padding: '10px' }}>
-        <Typography variant="h6" style={{ color: '#000', fontWeight: 'bold' }}>
-          {bairro}
-        </Typography>
-        <Typography variant="body2" style={{ color: '#000', fontWeight: 'bold' }}>
-          {cidade}
-        </Typography>
-        <Typography variant="h6" style={{ color: '#000', marginTop: '10px' }}>
-          R$ {valor}
-        </Typography>
-        <Grid container spacing={1} style={{ marginTop: '10px' }}>
-          {imageUrls.slice(1, 4).map((imageUrl, index) => (
-            <Grid item xs={4} key={index}>
-              <CardMedia
-                component="img"
-                image={imageUrl}
-                alt={`Imagem ${index}`}
-                style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-              />
-            </Grid>
-          ))}
-        </Grid>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-          <IconButton onClick={handleOpenVideo} style={{ padding: '5px' }}>
-            <FaEye size={20} />
-          </IconButton>
-          <IconButton onClick={handleViewDetails} style={{ padding: '5px' }}>
-            <FaPlus size={20} />
-          </IconButton>
-          <IconButton onClick={() => setIsFormOpen(true)} style={{ padding: '5px' }}>
-            <FaShare size={20} />
-          </IconButton>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          padding: '10px'
+        }}>
+          <Typography variant="body1" style={{ color: '#000', fontWeight: 'bold' }}>
+            {bairro} - {cidade}
+          </Typography>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+            <IconButton onClick={handleOpenVideo} style={{ padding: '5px' }}>
+              <FaVideo size={20} />
+            </IconButton>
+            <IconButton onClick={handleViewDetails} style={{ padding: '5px' }}>
+              <FaPlus size={20} />
+            </IconButton>
+            <IconButton onClick={() => setIsFormOpen(true)} style={{ padding: '5px' }}>
+              <FaShareAlt size={20} />
+            </IconButton>
+          </div>
         </div>
-      </CardContent>
+      </div>
       <Modal open={isVideoOpen} onClose={handleCloseVideo}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}>
           <video controls style={{ maxWidth: '100%', height: 'auto' }}>
