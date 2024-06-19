@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Footer from '../components/Footer';
 import MenuAppBar from '../components/MenuAppBar';
 import ImovelCardFull from '../components/ImovelCardFull';
 import { getDatabase, ref, get, push } from 'firebase/database';
@@ -129,6 +128,7 @@ const NavPage = () => {
           {listaDeImoveis.map((imovel, index) => (
             <ImovelCardFull
               key={imovel.id}
+              id={imovel.id}
               cidade={imovel.city}
               bairro={imovel.neighborhood}
               valor={imovel.price}
@@ -136,6 +136,10 @@ const NavPage = () => {
               videoUrl={imovel.videoURL}
               quartos={imovel.bedrooms}
               banheiros={imovel.bathrooms}
+              pets={imovel.petsAllowed}
+              mobiliado={imovel.furnished}
+              garagem={imovel.garageSpaces}
+              descricao={imovel.description}
             />
           ))}
           {isLoading && (
@@ -148,7 +152,6 @@ const NavPage = () => {
           <Whats />
         </div>
       </div>
-      <Footer />
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
         <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md mx-auto mt-20">
           <Typography variant="h6" className="mb-4 text-center">Mande uma mensagem direta</Typography>

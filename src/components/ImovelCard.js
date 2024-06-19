@@ -15,11 +15,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
 
-const ImovelCard = ({ id, city, neighborhood, price, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description, imageUrls, onImovelVendido, origin }) => {
+const ImovelCard = ({ id, city, neighborhood, price, imageUrls, onImovelVendido, origin }) => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [valorVendaInput, setValorVendaInput] = useState('');
 
   const coverImage = imageUrls && imageUrls.length > 0 ? imageUrls[0] : 'https://source.unsplash.com/random?wallpapers';
 
@@ -59,10 +57,11 @@ const ImovelCard = ({ id, city, neighborhood, price, saleOrRent, propertyType, b
       const snapshot = await get(addressRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
+        const dataVenda = new Date().toISOString(); // ISO string da data e hora atual
         await set(soldRef, {
           ...data,
           vendido: true,
-          valorVenda: Number(valorVendaInput),
+          dataVenda,
         });
         await remove(addressRef);
       }
@@ -86,12 +85,9 @@ const ImovelCard = ({ id, city, neighborhood, price, saleOrRent, propertyType, b
               <Typography fontWeight="bold" noWrap gutterBottom>
                 {city}, {neighborhood}
               </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight="bold">
-                Preço: R$ {price}
-              </Typography>
-              {origin === 'sold' && (
+              {origin === 'available' && (
                 <Typography variant="body2" color="text.secondary" fontWeight="bold">
-                  Valor da Venda: R$ {valorVendaInput}
+                  Preço: R$ {price}
                 </Typography>
               )}
             </Box>
@@ -131,16 +127,7 @@ const ImovelCard = ({ id, city, neighborhood, price, saleOrRent, propertyType, b
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogTitle>Marcar Imóvel como Vendido</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="valor-venda"
-            label="Valor da Venda (R$)"
-            type="number"
-            fullWidth
-            value={valorVendaInput}
-            onChange={(e) => setValorVendaInput(e.target.value)}
-          />
+          Tem certeza de que deseja marcar este imóvel como vendido?
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="error">
@@ -156,4 +143,3 @@ const ImovelCard = ({ id, city, neighborhood, price, saleOrRent, propertyType, b
 };
 
 export default ImovelCard;
-

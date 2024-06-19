@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import CustomDashboardCard from './CustomDashboardCard';
 import { getDatabase, ref, get } from 'firebase/database';
@@ -8,7 +6,7 @@ import { getDatabase, ref, get } from 'firebase/database';
 const Dashboard = () => {
   const [totalImoveis, setTotalImoveis] = useState(0);
   const [precoMedio, setPrecoMedio] = useState(0);
-  const [vendasMensais, setVendasMensais] = useState({ labels: [], values: [] });
+  const [vendasMensais, setVendasMensais] = useState({ labels: [], datasets: [] });
   const [totalVendidos, setTotalVendidos] = useState(0);
 
   useEffect(() => {
@@ -17,35 +15,55 @@ const Dashboard = () => {
         const db = getDatabase();
         const imoveisSnapshot = await get(ref(db, 'addresses'));
         const vendidosSnapshot = await get(ref(db, 'vendidos'));
-        if (imoveisSnapshot.exists()) {
-          const imoveis = Object.values(imoveisSnapshot.val());
-          setTotalImoveis(imoveis.length);
 
-          const totalPreco = imoveis.reduce((acc, imovel) => acc + imovel.preco, 0);
-          const mediaPreco = totalPreco / imoveis.length;
+        let imoveis = [];
+        let vendidos = [];
+
+        if (imoveisSnapshot.exists()) {
+          imoveis = Object.values(imoveisSnapshot.val());
+          setTotalImoveis(imoveis.length);
+        }
+
+        if (vendidosSnapshot.exists()) {
+          vendidos = Object.values(vendidosSnapshot.val());
+          setTotalVendidos(vendidos.length);
+        }
+
+        const totalImoveisList = [...imoveis, ...vendidos];
+
+        if (totalImoveisList.length > 0) {
+          const totalPreco = totalImoveisList.reduce((acc, imovel) => acc + parseFloat(imovel.price || 0), 0);
+          const mediaPreco = totalPreco / totalImoveisList.length;
           setPrecoMedio(mediaPreco);
         }
-        if (vendidosSnapshot.exists()) {
-          const vendidos = Object.values(vendidosSnapshot.val());
-          setTotalVendidos(vendidos.length);
 
-          const vendasMensaisData = Array.from({ length: 12 }, () => 0);
-          vendidos.forEach((vendido) => {
-            const mesVenda = new Date(vendido.dataVenda).getMonth();
+        const vendasMensaisData = Array.from({ length: 12 }, () => 0);
+        vendidos.forEach((vendido) => {
+          const dataVenda = vendido.dataVenda ? new Date(vendido.dataVenda) : new Date();
+
+          if (!isNaN(dataVenda)) {
+            const mesVenda = dataVenda.getMonth();
             vendasMensaisData[mesVenda] += 1;
-          });
+          } else {
+            console.warn('Data de Venda inválida:', vendido.dataVenda);
+          }
+        });
 
-          const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-          const vendasMensaisFormatadas = meses.map((mes, index) => ({
-            mes,
-            vendas: vendasMensaisData[index],
-          }));
+        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const chartData = {
+          labels: meses,
+          datasets: [
+            {
+              label: 'Vendas Mensais',
+              data: vendasMensaisData,
+              backgroundColor: 'rgba(75,192,192,0.4)',
+              borderColor: 'rgba(75,192,192,1)',
+              borderWidth: 1,
+            },
+          ],
+        };
 
-          setVendasMensais({
-            labels: vendasMensaisFormatadas.map((v) => v.mes),
-            values: vendasMensaisFormatadas.map((v) => v.vendas),
-          });
-        }
+        setVendasMensais(chartData);
       } catch (error) {
         console.error('Erro ao buscar imóveis:', error);
       }

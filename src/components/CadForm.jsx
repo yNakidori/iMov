@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { getDatabase, ref as databaseRef, push } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { Button, TextField, Box, Typography, Select, MenuItem, FormControl, InputLabel, Grid, Checkbox, FormControlLabel } from '@mui/material';
+import {
+  Button, TextField, Box, Typography, Select, MenuItem, FormControl, InputLabel,
+  Grid, Checkbox, FormControlLabel, CircularProgress
+} from '@mui/material';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 
 const CadForm = () => {
@@ -142,7 +145,7 @@ const CadForm = () => {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextField
-              label="Price"
+              label="Preço"
               variant="outlined"
               fullWidth
               name="price"
@@ -153,7 +156,7 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="City"
+              label="Cidade"
               variant="outlined"
               fullWidth
               name="city"
@@ -163,7 +166,7 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Neighborhood"
+              label="Bairro"
               variant="outlined"
               fullWidth
               name="neighborhood"
@@ -173,7 +176,7 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Description"
+              label="Descrição"
               variant="outlined"
               fullWidth
               multiline
@@ -185,12 +188,12 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel>Sale or Rent</InputLabel>
+              <InputLabel>Venda ou Aluguel</InputLabel>
               <Select
                 name="saleOrRent"
                 value={saleOrRent}
                 onChange={handleChange}
-                label="Sale or Rent"
+                label="Venda ou Aluguel"
               >
                 <MenuItem value="venda">Venda</MenuItem>
                 <MenuItem value="aluguel">Aluguel</MenuItem>
@@ -199,12 +202,12 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel>Property Type</InputLabel>
+              <InputLabel>Tipo de Propriedade</InputLabel>
               <Select
                 name="propertyType"
                 value={propertyType}
                 onChange={handleChange}
-                label="Property Type"
+                label="Tipo de Propriedade"
               >
                 <MenuItem value="casa">Casa</MenuItem>
                 <MenuItem value="apartamento">Apartamento</MenuItem>
@@ -214,7 +217,7 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={4}>
             <TextField
-              label="Bedrooms"
+              label="Quartos"
               variant="outlined"
               fullWidth
               type="number"
@@ -225,7 +228,7 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={4}>
             <TextField
-              label="Bathrooms"
+              label="Banheiros"
               variant="outlined"
               fullWidth
               type="number"
@@ -236,7 +239,7 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={4}>
             <TextField
-              label="Garage Spaces"
+              label="Vagas de Garagem"
               variant="outlined"
               fullWidth
               type="number"
@@ -258,53 +261,71 @@ const CadForm = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              label="Video (MP4)"
-              variant="outlined"
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<CloudUploadIcon />}
               fullWidth
-              type="file"
-              name="video"
-              accept="video/mp4"
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-            />
+            >
+              Upload Vídeo (MP4)
+              <input
+                type="file"
+                hidden
+                name="video"
+                accept="video/mp4"
+                onChange={handleChange}
+              />
+            </Button>
+            {video && (
+              <Typography variant="body2" sx={{ marginTop: '8px' }}>
+                {video.name}
+              </Typography>
+            )}
           </Grid>
           <Grid item xs={12}>
-            <Typography variant="subtitle1">Images</Typography>
+            <Typography variant="subtitle1">Imagens</Typography>
             <Grid container spacing={2}>
               {images.map((_, index) => (
                 <Grid item xs={4} key={index}>
-                  <label htmlFor={`image${index + 1}`}>
-                    <Button
-                      variant="contained"
-                      component="span"
-                      startIcon={<CloudUploadIcon />}
-                      fullWidth
-                    >
-                      Image {index + 1}
-                    </Button>
+                  <Button
+                    variant="contained"
+                    component="label"
+                    startIcon={<CloudUploadIcon />}
+                    fullWidth
+                  >
+                    Imagem {index + 1}
                     <input
                       type="file"
-                      id={`image${index + 1}`}
+                      hidden
                       name={`image${index + 1}`}
                       accept="image/*"
                       onChange={handleImageChange(index)}
-                      className="hidden"
                     />
-                  </label>
+                  </Button>
+                  {images[index] && (
+                    <Typography variant="body2" sx={{ marginTop: '8px' }}>
+                      {images[index].name}
+                    </Typography>
+                  )}
                 </Grid>
               ))}
             </Grid>
           </Grid>
           <Grid item xs={12} display="flex" justifyContent="space-between" mt={2}>
-            <Button variant="outlined" color="secondary">
-              Cancel
+            <Button variant="outlined" color="secondary" onClick={() => window.location.reload()}>
+              Cancelar
             </Button>
             <Button type="submit" variant="contained" color="primary" disabled={!allFieldsReady}>
-              Submit
+              Enviar
             </Button>
           </Grid>
         </Grid>
+        {uploading && (
+          <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+            <CircularProgress variant="determinate" value={progress} />
+            <Typography variant="body2" sx={{ marginLeft: '8px' }}>{progress}%</Typography>
+          </Box>
+        )}
       </form>
     </Box>
   );
