@@ -98,7 +98,7 @@ const ListaImoveisPage = () => {
           setTotalImoveis(imoveis.length);
 
           // Calcula o preço médio
-          const totalPreco = imoveis.reduce((acc, imovel) => acc + imovel.preco, 0);
+          const totalPreco = imoveis.reduce((acc, imovel) => acc + imovel.price, 0);
           const mediaPreco = totalPreco / imoveis.length;
           setPrecoMedio(mediaPreco);
         }
@@ -125,8 +125,9 @@ const ListaImoveisPage = () => {
       const snapshot = await get(imovelRef);
       if (snapshot.exists()) {
         const imovelData = snapshot.val();
-        // Adicionar o imóvel à lista de vendidos
-        await push(vendidosRef, { ...imovelData, dataVenda: Date.now() });
+        // Adicionar o imóvel à lista de vendidos com a data de venda atual
+        const dataVenda = new Date().toISOString(); // ISO string da data e hora atual
+        await push(vendidosRef, { ...imovelData, dataVenda });
         // Remover o imóvel da lista de imóveis principal
         await remove(imovelRef);
         // Atualizar a lista de imóveis

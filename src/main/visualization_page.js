@@ -3,32 +3,35 @@ import MenuAppBar from '../components/MenuAppBar';
 import { Container, Grid, Typography, Card, CardMedia, CardContent, IconButton, Modal, Box } from '@mui/material';
 import { FaHeart, FaShare } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
+import {
+    Home as HomeIcon,
+    KingBed as BedIcon,
+    Bathtub as BathtubIcon,
+    DirectionsCar as CarIcon,
+    Pets as PetsIcon,
+    CheckBox as CheckBoxIcon,
+    Elevator as ElevatorIcon,
+    Balcony as BalconyIcon
+} from '@mui/icons-material';
 
 const VisualizationPage = () => {
     const location = useLocation();
     const { imovel } = location.state || {};
 
-    const [open, setOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
     if (!imovel) {
         return <Typography variant="h6">Imóvel não encontrado.</Typography>;
     }
 
-    const {
-        area = 'Não informado',
-        vagas = 'Não informado',
-        aceitaPet = 'Não informado',
-        mobiliado = 'Não informado'
-    } = imovel.detalhes || {};
-
     const handleOpen = (image) => {
         setSelectedImage(image);
-        setOpen(true);
+        setModalOpen(true);
     };
 
     const handleClose = () => {
-        setOpen(false);
+        setModalOpen(false);
     };
 
     const fontStyle = {
@@ -72,32 +75,83 @@ const VisualizationPage = () => {
                                     </video>
                                 </div>
                                 <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
-                                    Descrição
+                                    Descrição:
+                                </Typography>
+                                <Typography variant="h6" gutterBottom style={fontStyle}>
+                                    {imovel.descricao}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary" gutterBottom>
-                                    {imovel.descricao}
+                                    {imovel.detalhes}
                                 </Typography>
                                 <Typography variant="h6" gutterBottom>
                                     Detalhes do Imóvel
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    Quartos: {imovel.quartos}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    Banheiros: {imovel.banheiros}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    Vagas: {vagas}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    Área: {area}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    Aceita Pet: {aceitaPet}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    Mobiliado: {mobiliado}
-                                </Typography>
+                                <Grid container spacing={2} style={{ marginTop: '10px' }}>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <HomeIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Área: {imovel.area || 'Não informado'} m²
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <BedIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Quartos: {imovel.quartos || 'Não informado'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <BathtubIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Banheiros: {imovel.banheiros || 'Não informado'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <CarIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Vagas: {imovel.garagem || 'Não informado'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <PetsIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Aceita Pets: {imovel.petsAllowed ? 'Sim' : 'Não'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <CheckBoxIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Mobiliado: {imovel.furnished ? 'Sim' : 'Não'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <ElevatorIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Andar: {imovel.andar || 'Não informado'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <Box display="flex" alignItems="center">
+                                            <BalconyIcon style={{ marginRight: '4px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                Sacada: {imovel.sacada ? 'Sim' : 'Não'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
                                 <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
                                     <IconButton>
                                         <FaHeart />
@@ -110,12 +164,9 @@ const VisualizationPage = () => {
                         </Card>
                     </Grid>
                 </Grid>
-                <Typography variant="body1" style={{ marginTop: '20px', ...fontStyle }}>
-                    {imovel.descricao}
-                </Typography>
             </Container>
 
-            <Modal open={open} onClose={handleClose}>
+            <Modal open={modalOpen} onClose={handleClose}>
                 <Box
                     position="absolute"
                     top="50%"
