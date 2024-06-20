@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import { auth } from "../firebase/firebase";
@@ -15,11 +15,26 @@ import {
     ThemeProvider,
     createTheme,
 } from "@mui/material";
+import { getRandomImage } from "../unsplashService";
 
 function PasswordReset() {
     const [email, setEmail] = useState("");
     const [resetEmailSent, setResetEmailSent] = useState(false);
     const [error, setError] = useState("");
+    const [backgroundImage, setBackgroundImage] = useState("");
+
+    useEffect(() => {
+        const fetchImage = async () => {
+            try {
+                const image = await getRandomImage('wallpapers');
+                setBackgroundImage(image.urls.full);
+            } catch (error) {
+                console.error("Error fetching the background image:", error);
+            }
+        };
+
+        fetchImage();
+    }, []);
 
     const resetPassword = async (e) => {
         e.preventDefault();
@@ -48,7 +63,7 @@ function PasswordReset() {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+                        backgroundImage: `url(${backgroundImage})`,
                         backgroundRepeat: 'no-repeat',
                         backgroundColor: (t) =>
                             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],

@@ -153,6 +153,7 @@ const NavPage = () => {
         </div>
       </div>
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
+
         <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md mx-auto mt-20">
           <Typography variant="h6" className="mb-4 text-center">Mande uma mensagem direta</Typography>
           <form onSubmit={handleSubmit}>
