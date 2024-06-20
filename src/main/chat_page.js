@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaInstagram } from 'react-icons/fa';
+import MenuAppBar from '../components/MenuAppBar';
 
 const LeftSection = () => {
     return (
@@ -70,21 +71,25 @@ const RightSection = ({ onSendMessage }) => {
         onSendMessage(); // Call the function to notify parent component
     };
 
+    const handleSuggestionClick = (text) => {
+        setMessage(text);
+    };
+
     return (
         <div className="bg-gray-900 h-full flex flex-col p-4 space-y-4" style={{ fontFamily: 'Roboto, sans-serif' }}>
             {showSuggestions && (
                 <div className="flex justify-center mb-4">
                     <div className="flex flex-col space-y-4">
-                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600">
+                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600" onClick={() => handleSuggestionClick("Quais são as melhores áreas para comprar um imóvel residencial em [cidade], considerando segurança, acessibilidade a transporte público e proximidade a escolas e mercados?")}>
                             <p>"Quais são as melhores áreas para comprar um imóvel residencial em [cidade], considerando segurança, acessibilidade a transporte público e proximidade a escolas e mercados?"</p>
                         </div>
-                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600">
+                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600" onClick={() => handleSuggestionClick("Quais são os preços médios de imóveis de três quartos em bairros centrais de [cidade], e como esses preços se comparam aos bairros periféricos?")}>
                             <p>"Quais são os preços médios de imóveis de três quartos em bairros centrais de [cidade], e como esses preços se comparam aos bairros periféricos?"</p>
                         </div>
-                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600">
+                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600" onClick={() => handleSuggestionClick("Quais fatores devo considerar ao escolher entre comprar um apartamento ou uma casa em [cidade], e quais são os prós e contras de cada opção?")}>
                             <p>"Quais fatores devo considerar ao escolher entre comprar um apartamento ou uma casa em [cidade], e quais são os prós e contras de cada opção?"</p>
                         </div>
-                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600">
+                        <div className="bg-gray-700 p-4 rounded-lg text-center cursor-pointer hover:bg-gray-600" onClick={() => handleSuggestionClick("Quais são as principais tendências no mercado imobiliário de [cidade] nos últimos cinco anos, e como essas tendências podem impactar minha decisão de compra?")}>
                             <p>"Quais são as principais tendências no mercado imobiliário de [cidade] nos últimos cinco anos, e como essas tendências podem impactar minha decisão de compra?"</p>
                         </div>
                         <div className="text-center text-white mt-4">
@@ -128,14 +133,18 @@ const ChatPage = () => {
     };
 
     return (
-        <div className="flex flex-col md:flex-row h-screen bg-gray-900 text-white">
-            <div className="w-full md:w-1/4">
-                <LeftSection />
+        <>
+            <MenuAppBar />
+            <div className="flex flex-col md:flex-row h-screen bg-gray-900 text-white">
+                <div className="w-full md:w-1/4">
+                    <LeftSection />
+                </div>
+                <div className="w-full flex-1">
+                    <RightSection onSendMessage={handleSendMessage} />
+                </div>
             </div>
-            <div className="w-full flex-1">
-                <RightSection onSendMessage={handleSendMessage} />
-            </div>
-        </div>
+        </>
+
     );
 };
 

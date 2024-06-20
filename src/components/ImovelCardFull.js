@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { FaVideo, FaPlus, FaEnvelope, FaInfoCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Modal, IconButton, TextField, Button, Typography, Card } from '@mui/material';
+import { Modal, IconButton, TextField, Button, Typography, Card, Grid } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
+import { FaHome, FaBed, FaBath, FaCar, FaDog, FaCouch, FaSubway, FaBuilding } from 'react-icons/fa';
 import './ImovelCardFull.css';
 
-const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descricao, petsAllowed, furnished, garagem, quartos, banheiros }) => {
+const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descricao, pets, mobiliado, garagem, quartos, banheiros }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '' });
+  const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '', id });
   const [formErrors, setFormErrors] = useState({});
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
   };
 
   const handleViewDetails = () => {
-    navigate('/visualization', { state: { imovel: { id, cidade, bairro, valor, imageUrls, videoUrl, descricao, petsAllowed, furnished, garagem, quartos, banheiros } } });
+    navigate('/visualization', { state: { imovel: { id, cidade, bairro, valor, imageUrls, videoUrl, descricao, pets, mobiliado, garagem, quartos, banheiros } } });
   };
 
   return (
@@ -149,6 +150,9 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
                 variant="standard"
               />
             </div>
+            <TextField className='mb-5' fullWidth label='Código do Imóvel' variant='standard'
+              value={id} disabled={true}
+            />
             <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
           </form>
         </div>
@@ -156,16 +160,29 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
       <Modal open={isInfoOpen} onClose={handleCloseInfo}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '600px' }}>
           <Typography variant="h6" style={{ marginBottom: '20px' }}>Informações do Imóvel</Typography>
-          <Typography variant="body1">ID: {id}</Typography>
-          <Typography variant="body1">Cidade: {cidade}</Typography>
-          <Typography variant="body1">Bairro: {bairro}</Typography>
-          <Typography variant="body1">Preço: R${valor}</Typography>
-          <Typography variant="body1">Descrição: {descricao}</Typography>
-          <Typography variant="body1">Aceita Pets: {petsAllowed ? 'Sim' : 'Não'}</Typography>
-          <Typography variant="body1">Mobiliado: {furnished ? 'Sim' : 'Não'}</Typography>
-          <Typography variant="body1">Vagas de Garagem: {garagem}</Typography>
-          <Typography variant="body1">Quartos: {quartos}</Typography>
-          <Typography variant="body1">Banheiros: {banheiros}</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="body1"><FaHome />R$:{valor} </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="body1"><FaBed /> {quartos} quarto(s)</Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="body1"><FaBath /> {banheiros} banheiro(s)</Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="body1"><FaCar /> {garagem ? `${garagem} vaga(s)` : '-'}</Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="body1"><FaDog /> {pets ? 'Aceita pets' : 'Não aceita pets'}</Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="body1"><FaCouch /> {mobiliado ? 'Mobiliado' : 'Não mobiliado'}</Typography>
+            </Grid>
+            <Grid item xs={8} sm={8}>
+              <Typography variant="body1">Identificação do imóvel: '{id}'</Typography>
+            </Grid>
+          </Grid>
           <Button onClick={handleCloseInfo} variant="contained" color="primary" style={{ marginTop: '20px' }}>Fechar</Button>
         </div>
       </Modal>

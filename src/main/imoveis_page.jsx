@@ -66,6 +66,7 @@ const MessagePopup = ({ message, onClose, onDeleteMessage }) => {
         <p>Email: {message?.email}</p>
         <p>Telefone: {message?.telefone}</p>
         <p>Mensagem: {message?.mensagem}</p>
+        <p>ID do Imóvel: {message?.id}</p>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Fechar</Button>

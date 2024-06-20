@@ -1,26 +1,30 @@
-import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom"; // Importe o Link
-import House from '../../iMov/src/components/Lottie/House';
+import React, { useState, useEffect } from "react";
+import { Link, Navigate } from "react-router-dom";
+import House from "./components/Lottie/House";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import {
-  Button,
-  CssBaseline,
-  TextField,
-  Grid,
-  Paper,
-  Box,
-  Typography,
-  Link as MuiLink,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import { Button, CssBaseline, TextField, Grid, Paper, Box, Typography, Link as MuiLink, ThemeProvider, createTheme } from "@mui/material";
+import { getRandomImage } from "./unsplashService";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState("");
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const image = await getRandomImage('wallpapers');
+        setBackgroundImage(image.urls.full);
+      } catch (error) {
+        console.error("Error fetching the background image:", error);
+      }
+    };
+
+    fetchImage();
+  }, []);
 
   const logi = (e) => {
     e.preventDefault();
@@ -50,7 +54,7 @@ function Login() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+            backgroundImage: `url(${backgroundImage})`,
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
               t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -107,7 +111,6 @@ function Login() {
               </Button>
               <Grid container>
                 <Grid item xs>
-                  {/* Adicione o Link para a página de redefinição de senha */}
                   <Link to="/passwordreset" variant="body2">
                     Esqueceu sua senha?
                   </Link>

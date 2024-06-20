@@ -1,21 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Gear from "./components/Lottie/Gear";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import {
-  Button,
-  CssBaseline,
-  TextField,
-  Grid,
-  Paper,
-  Box,
-  Typography,
-  Link as MuiLink,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import { Button, CssBaseline, TextField, Grid, Paper, Box, Typography, Link as MuiLink, ThemeProvider, createTheme } from "@mui/material";
+import { getRandomImage } from "./unsplashService";
 
 function App() {
   const [email, setEmail] = useState("");
@@ -23,7 +13,21 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [backgroundImage, setBackgroundImage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const image = await getRandomImage('wallpapers');
+        setBackgroundImage(image.urls.full);
+      } catch (error) {
+        console.error("Error fetching the background image:", error);
+      }
+    };
+
+    fetchImage();
+  }, []);
 
   const register = async (e) => {
     e.preventDefault();
@@ -35,7 +39,6 @@ function App() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Envia e-mail de verificação
       await sendEmailVerification(userCredential.user);
       setSuccessMessage("Conta criada com sucesso! Um e-mail de verificação foi enviado para o seu endereço de e-mail.");
       navigate("/");
@@ -56,25 +59,15 @@ function App() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              'url("https://source.unsplash.com/random?wallpapers")',
+            backgroundImage: `url(${backgroundImage})`,
             backgroundRepeat: "no-repeat",
-            backgroundColor: (t) =>
-              t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundColor: (t) => t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
-            sx={{
-              my: 8,
-              mx: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
+          <Box sx={{ my: 8, mx: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Gear />
             <Typography component="h1" variant="h5">
               Registro de perfil
@@ -118,12 +111,7 @@ function App() {
               />
               {error && <Typography color="error">{error}</Typography>}
               {successMessage && <Typography color="success">{successMessage}</Typography>}
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
+              <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                 Registrar
               </Button>
               <Grid container>
