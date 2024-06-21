@@ -82,6 +82,7 @@ const ListaImoveisPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [listaDeImoveis, setListaDeImoveis] = useState([]);
   const [listaDeVendidos, setListaDeVendidos] = useState([]);
+  const [listaDePausados, setListaDePausados] = useState([]);
   const [totalImoveis, setTotalImoveis] = useState(0);
   const [precoMedio, setPrecoMedio] = useState(0);
   const [mensagens, setMensagens] = useState([]);
@@ -111,45 +112,6 @@ const ListaImoveisPage = () => {
     fetchImoveis();
   }, []);
 
-  const togglePopup = () => {
-    setIsPopupOpen(!isPopupOpen);
-  };
-
-  // Função para marcar o imóvel como vendido e movê-lo para uma lista de vendidos
-  const handleMarkAsSold = async (id) => {
-    try {
-      const db = getDatabase();
-      const imovelRef = ref(db, `addresses/${id}`);
-      const vendidosRef = ref(db, 'vendidos');
-
-      // Obter os dados do imóvel que será marcado como vendido
-      const snapshot = await get(imovelRef);
-      if (snapshot.exists()) {
-        const imovelData = snapshot.val();
-        // Adicionar o imóvel à lista de vendidos com a data de venda atual
-        const dataVenda = new Date().toISOString(); // ISO string da data e hora atual
-        await push(vendidosRef, { ...imovelData, dataVenda });
-        // Remover o imóvel da lista de imóveis principal
-        await remove(imovelRef);
-        // Atualizar a lista de imóveis
-        setListaDeImoveis(listaDeImoveis.filter(imovel => imovel.id !== id));
-      }
-    } catch (error) {
-      console.error('Erro ao marcar o imóvel como vendido:', error);
-    }
-  };
-
-  const handleDeleteMessage = async (id) => {
-    try {
-      const db = getDatabase();
-      const messageRef = ref(db, `messages/${id}`);
-      await remove(messageRef);
-      setMensagens(mensagens.filter(message => message.id !== id));
-    } catch (error) {
-      console.error('Erro ao excluir mensagem:', error);
-    }
-  };
-
   useEffect(() => {
     const fetchVendidos = async () => {
       try {
@@ -168,6 +130,23 @@ const ListaImoveisPage = () => {
   }, []);
 
   useEffect(() => {
+    const fetchPausados = async () => {
+      try {
+        const db = getDatabase();
+        const snapshot = await get(ref(db, 'pausados'));
+        if (snapshot.exists()) {
+          const pausados = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
+          setListaDePausados(pausados);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar imóveis pausados:', error);
+      }
+    };
+
+    fetchPausados();
+  }, []);
+
+  useEffect(() => {
     const fetchMensagens = async () => {
       try {
         const db = getDatabase();
@@ -183,6 +162,40 @@ const ListaImoveisPage = () => {
 
     fetchMensagens();
   }, []);
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
+  };
+
+  const handleMarkAsSold = async (id) => {
+    try {
+      const db = getDatabase();
+      const imovelRef = ref(db, `addresses/${id}`);
+      const vendidosRef = ref(db, 'vendidos');
+
+      const snapshot = await get(imovelRef);
+      if (snapshot.exists()) {
+        const imovelData = snapshot.val();
+        const dataVenda = new Date().toISOString();
+        await push(vendidosRef, { ...imovelData, dataVenda });
+        await remove(imovelRef);
+        setListaDeImoveis(listaDeImoveis.filter(imovel => imovel.id !== id));
+      }
+    } catch (error) {
+      console.error('Erro ao marcar o imóvel como vendido:', error);
+    }
+  };
+
+  const handleDeleteMessage = async (id) => {
+    try {
+      const db = getDatabase();
+      const messageRef = ref(db, `messages/${id}`);
+      await remove(messageRef);
+      setMensagens(mensagens.filter(message => message.id !== id));
+    } catch (error) {
+      console.error('Erro ao excluir mensagem:', error);
+    }
+  };
 
   return (
     <>
@@ -230,6 +243,13 @@ const ListaImoveisPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeVendidos.map((imovel) => (
                 <ImovelCard key={imovel.id} {...imovel} origin="sold" />
+              ))}
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-400 overflow-hidden mt-6" style={{ overflowY: 'auto' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
+              {listaDePausados.map((imovel) => (
+                <ImovelCard key={imovel.id} {...imovel} origin="paused" />
               ))}
             </div>
           </div>
