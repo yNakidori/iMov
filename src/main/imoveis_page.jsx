@@ -18,6 +18,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const MensagensComponent = ({ mensagens, onDeleteMessage }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -86,6 +88,11 @@ const ListaImoveisPage = () => {
   const [totalImoveis, setTotalImoveis] = useState(0);
   const [precoMedio, setPrecoMedio] = useState(0);
   const [mensagens, setMensagens] = useState([]);
+  const [alert, setAlert] = useState({ open: false, severity: 'success', message: '' });
+
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false });
+  };
 
   useEffect(() => {
     const fetchImoveis = async () => {
@@ -187,20 +194,23 @@ const ListaImoveisPage = () => {
   };
 
   const handleDeleteMessage = async (id) => {
+    console.log('Deleting message with ID:', id);
     try {
       const db = getDatabase();
       const messageRef = ref(db, `messages/${id}`);
       await remove(messageRef);
       setMensagens(mensagens.filter(message => message.id !== id));
+      setAlert({ open: true, severity: 'success', message: 'Mensagem excluída com sucesso!' });
     } catch (error) {
       console.error('Erro ao excluir mensagem:', error);
+      setAlert({ open: true, severity: 'error', message: 'Erro ao excluir mensagem.' });
     }
   };
 
   return (
     <>
       <MenuAppAdm />
-      <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative ">
+      <div className="min-h-screen bg-gray-700 py-12 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-6">
             <House />
@@ -214,7 +224,7 @@ const ListaImoveisPage = () => {
             <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
               <div className="p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center relative">
                 <CadForm />
-                <div className='mt-6 flex items-center justify-center'>
+                <div className="mt-6 flex items-center justify-center">
                   <Button onClick={togglePopup} variant="contained" color="error">
                     Fechar Popup
                   </Button>
@@ -231,30 +241,31 @@ const ListaImoveisPage = () => {
           <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeImoveis.map((imovel) => (
-                <ImovelCard key={imovel.id}
-                  valor={imovel.price}
-                  quartos={imovel.bedrooms}
-                  banheiros={imovel.bathrooms}
-                  {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
+                <ImovelCard key={`${imovel.id}-available`} {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
               ))}
             </div>
           </div>
           <div className="rounded-lg border border-gray-400 overflow-hidden mt-6" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeVendidos.map((imovel) => (
-                <ImovelCard key={imovel.id} {...imovel} origin="sold" />
+                <ImovelCard key={`${imovel.id}-sold`} {...imovel} origin="sold" />
               ))}
             </div>
           </div>
           <div className="rounded-lg border border-gray-400 overflow-hidden mt-6" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDePausados.map((imovel) => (
-                <ImovelCard key={imovel.id} {...imovel} origin="paused" />
+                <ImovelCard key={`${imovel.id}-paused`} {...imovel} origin="paused" />
               ))}
             </div>
           </div>
         </div>
       </div>
+      <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

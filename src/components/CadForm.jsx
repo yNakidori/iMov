@@ -3,15 +3,24 @@ import { getDatabase, ref as databaseRef, push } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import {
   Button, TextField, Box, Typography, Select, MenuItem, FormControl, InputLabel,
-  Grid, Checkbox, FormControlLabel, CircularProgress
+  Grid, Checkbox, FormControlLabel, CircularProgress, Snackbar, Alert
 } from '@mui/material';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import { NumericFormat } from 'react-number-format';
+
+// Lista de cidades e bairros (exemplo)
+const cidades = {
+  'São Paulo': ['Centro', 'Zona Sul', 'Zona Oeste', 'Zona Norte', 'Zona Leste'],
+  'Rio de Janeiro': ['Centro', 'Zona Sul', 'Zona Oeste', 'Zona Norte'],
+  'Belo Horizonte': ['Centro-Sul', 'Leste', 'Oeste', 'Noroeste', 'Pampulha']
+};
 
 const CadForm = () => {
   const [formData, setFormData] = useState({
     city: '',
     neighborhood: '',
     price: '',
+    consultPrice: false,
     video: null,
     images: Array(6).fill(null),
     saleOrRent: '',
@@ -25,6 +34,11 @@ const CadForm = () => {
   });
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [alert, setAlert] = useState({ open: false, severity: 'success', message: '' });
+
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false });
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -56,10 +70,10 @@ const CadForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const { city, neighborhood, price, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
+    const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
 
     if (!images.some(image => image)) {
-      alert('Selecione pelo menos uma imagem.');
+      setAlert({ open: true, severity: 'error', message: 'Selecione pelo menos uma imagem.' });
       return;
     }
 
@@ -93,7 +107,7 @@ const CadForm = () => {
       await push(databaseRef(db, 'addresses'), {
         city,
         neighborhood,
-        price,
+        price: consultPrice ? 'Consulte com um corretor' : price,
         videoURL,
         imageUrls,
         saleOrRent,
@@ -110,6 +124,7 @@ const CadForm = () => {
         city: '',
         neighborhood: '',
         price: '',
+        consultPrice: false,
         video: null,
         images: Array(6).fill(null),
         saleOrRent: '',
@@ -123,18 +138,18 @@ const CadForm = () => {
       });
       setProgress(0);
       setUploading(false);
-      alert('Formulário enviado com sucesso!');
+      setAlert({ open: true, severity: 'success', message: 'Formulário enviado com sucesso!' });
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
-      alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
+      setAlert({ open: true, severity: 'error', message: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.' });
       setProgress(0);
       setUploading(false);
     }
     window.location.reload();
   };
 
-  const { city, neighborhood, price, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
-  const allFieldsReady = city && neighborhood && price && images.some(image => image) && !uploading;
+  const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
+  const allFieldsReady = city && neighborhood && (price || consultPrice) && images.some(image => image) && !uploading;
 
   return (
     <Box sx={{ maxWidth: '600px', margin: 'auto', padding: '16px', backgroundColor: 'white', borderRadius: '16px', boxShadow: 3 }}>
@@ -144,35 +159,79 @@ const CadForm = () => {
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TextField
-              label="Preço"
-              variant="outlined"
-              fullWidth
-              name="price"
-              value={price}
-              onChange={handleChange}
-              InputProps={{ startAdornment: <Typography>R$</Typography> }}
-            />
+            <FormControl variant="outlined" fullWidth>
+              <FormControlLabel
+                control={<Checkbox checked={consultPrice} onChange={(e) => setFormData({ ...formData, consultPrice: e.target.checked, price: '' })} />}
+                label="Consulte com um corretor"
+              />
+              {!consultPrice && (
+                <NumericFormat
+                  value={price}
+                  onValueChange={(values) => {
+                    const { formattedValue } = values;
+                    handleChange({ target: { name: 'price', value: formattedValue } });
+                  }}
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="R$ "
+                  decimalScale={2}
+                  fixedDecimalScale
+                  customInput={TextField}
+                  label="Preço"
+                  fullWidth
+                  variant="outlined"
+                />
+              )}
+            </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <TextField
-              label="Cidade"
-              variant="outlined"
-              fullWidth
-              name="city"
-              value={city}
-              onChange={handleChange}
-            />
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Cidade</InputLabel>
+              <Select
+                name="city"
+                value={city}
+                onChange={handleChange}
+                label="Cidade"
+              >
+                {Object.keys(cidades).map((cidade) => (
+                  <MenuItem key={cidade} value={cidade}>{cidade}</MenuItem>
+                ))}
+              </Select>
+              <TextField
+                label="Ou digite a cidade"
+                variant="outlined"
+                fullWidth
+                name="city"
+                value={city}
+                onChange={handleChange}
+                sx={{ marginTop: '8px' }}
+              />
+            </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <TextField
-              label="Bairro"
-              variant="outlined"
-              fullWidth
-              name="neighborhood"
-              value={neighborhood}
-              onChange={handleChange}
-            />
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Bairro</InputLabel>
+              <Select
+                name="neighborhood"
+                value={neighborhood}
+                onChange={handleChange}
+                label="Bairro"
+                disabled={!city}
+              >
+                {city && cidades[city]?.map((bairro) => (
+                  <MenuItem key={bairro} value={bairro}>{bairro}</MenuItem>
+                ))}
+              </Select>
+              <TextField
+                label="Ou digite o bairro"
+                variant="outlined"
+                fullWidth
+                name="neighborhood"
+                value={neighborhood}
+                onChange={handleChange}
+                sx={{ marginTop: '8px' }}
+              />
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -327,6 +386,11 @@ const CadForm = () => {
           </Box>
         )}
       </form>
+      <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
