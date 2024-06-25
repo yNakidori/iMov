@@ -3,14 +3,14 @@ import { FaVideo, FaPlus, FaEnvelope, FaInfoCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { Modal, IconButton, TextField, Button, Typography, Card, Grid } from '@mui/material';
 import { getDatabase, ref, push } from 'firebase/database';
-import { FaHome, FaBed, FaBath, FaCar, FaDog, FaCouch, FaSubway, FaBuilding } from 'react-icons/fa';
+import { FaHome, FaBed, FaBath, FaCar, FaDog, FaCouch } from 'react-icons/fa';
 import './ImovelCardFull.css';
 
 const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descricao, pets, mobiliado, garagem, quartos, banheiros }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '', id });
+  const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', mensagem: '' });
   const [formErrors, setFormErrors] = useState({});
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
       try {
         const db = getDatabase();
         const messagesRef = ref(db, 'messages');
-        await push(messagesRef, formData);
+        await push(messagesRef, { ...formData, imovelId: id });
         setIsFormOpen(false);
         alert('Formulário enviado com sucesso!');
       } catch (error) {
@@ -150,9 +150,6 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
                 variant="standard"
               />
             </div>
-            <TextField className='mb-5' fullWidth label='Código do Imóvel' variant='standard'
-              value={id} disabled={true}
-            />
             <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
           </form>
         </div>
@@ -162,7 +159,7 @@ const ImovelCardFull = ({ id, cidade, bairro, valor, imageUrls, videoUrl, descri
           <Typography variant="h6" style={{ marginBottom: '20px' }}>Informações do Imóvel</Typography>
           <Grid container spacing={2}>
             <Grid item xs={6} sm={4}>
-              <Typography variant="body1"><FaHome />R$:{valor} </Typography>
+              <Typography variant="body1"><FaHome /> R${valor}</Typography>
             </Grid>
             <Grid item xs={6} sm={4}>
               <Typography variant="body1"><FaBed /> {quartos} quarto(s)</Typography>
