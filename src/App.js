@@ -4,7 +4,7 @@ import Gear from "./components/Lottie/Gear";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { Button, CssBaseline, TextField, Grid, Paper, Box, Typography, Link as MuiLink, ThemeProvider, createTheme } from "@mui/material";
+import { Button, CssBaseline, TextField, Grid, Paper, Box, Typography, Link as MuiLink, ThemeProvider, createTheme, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { getRandomImage } from "./unsplashService";
 
 function App() {
@@ -14,6 +14,7 @@ function App() {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState("");
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +28,20 @@ function App() {
     };
 
     fetchImage();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/users'); // Certifique-se de que a URL está correta
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const register = async (e) => {
@@ -122,6 +137,27 @@ function App() {
                 </Grid>
               </Grid>
             </Box>
+          </Box>
+          <Box sx={{ mt: 5 }}>
+            <Typography component="h2" variant="h6">
+              Usuários Cadastrados
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Email</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.uid}>
+                      <TableCell>{user.email}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
         </Grid>
       </Grid>
