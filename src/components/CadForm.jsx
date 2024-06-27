@@ -208,30 +208,14 @@ const CadForm = () => {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel>Bairro</InputLabel>
-              <Select
-                name="neighborhood"
-                value={neighborhood}
-                onChange={handleChange}
-                label="Bairro"
-                disabled={!city}
-              >
-                {city && cidades[city]?.map((bairro) => (
-                  <MenuItem key={bairro} value={bairro}>{bairro}</MenuItem>
-                ))}
-              </Select>
-              <TextField
-                label="Ou digite o bairro"
-                variant="outlined"
-                fullWidth
-                name="neighborhood"
-                value={neighborhood}
-                onChange={handleChange}
-                sx={{ marginTop: '8px' }}
-                disabled={!city}
-              />
-            </FormControl>
+            <TextField
+              label="Bairro"
+              variant="outlined"
+              fullWidth
+              name="neighborhood"
+              value={neighborhood}
+              onChange={handleChange}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField
