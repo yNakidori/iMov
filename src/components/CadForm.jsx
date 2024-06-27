@@ -145,7 +145,6 @@ const CadForm = () => {
       setProgress(0);
       setUploading(false);
     }
-    window.location.reload();
   };
 
   const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
