@@ -7,7 +7,7 @@ import { getDatabase, ref, get } from 'firebase/database';
 const navigation = [
   { name: 'Nossos Imóveis', href: '/navpage', current: false },
   { name: 'Ajuda', href: '/chat', current: false },
-  { name: 'Nossas Publicações', href: '/instagram', current: false },
+  // { name: 'Nossas Publicações', href: '/instagram', current: false },
 ];
 
 function classNames(...classes) {
