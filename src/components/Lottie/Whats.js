@@ -7,6 +7,14 @@ const Whats = () => {
   const [isAnimationActive, setIsAnimationActive] = useState(false);
   const [isMouseOver, setIsMouseOver] = useState(false);
 
+  const phoneNumber = '11972570368';
+  const message = "Olá, gostaria de mais informações sobre um imóvel.";
+
+  const handleWhatsAppRedirect = () => {
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
   const defaultOptions = {
     loop: false,
     autoplay: false,
@@ -35,6 +43,9 @@ const Whats = () => {
         width={75}
         style={{ fill: 'red' }}
       />
+      <button onClick={handleWhatsAppRedirect} style={{ cursor: 'pointer', padding: '10px', fontSize: '16px', backgroundColor: '#25D366', color: 'white', border: 'none', borderRadius: '5px' }}>
+        Iniciar Conversa no WhatsApp
+      </button>
     </div>
   );
 };

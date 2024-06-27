@@ -13,7 +13,7 @@ const AuthChecker = ({ children }) => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             setUser(user);
             if (!user) {
-                history.push('/login'); // Redireciona para a página de login se não estiver autenticado
+                history.push('/login');
             }
         });
 

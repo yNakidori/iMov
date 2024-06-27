@@ -18,6 +18,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const MensagensComponent = ({ mensagens, onDeleteMessage }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -66,7 +68,6 @@ const MessagePopup = ({ message, onClose, onDeleteMessage }) => {
         <p>Email: {message?.email}</p>
         <p>Telefone: {message?.telefone}</p>
         <p>Mensagem: {message?.mensagem}</p>
-        <p>ID do Imóvel: {message?.id}</p>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Fechar</Button>
@@ -82,9 +83,15 @@ const ListaImoveisPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [listaDeImoveis, setListaDeImoveis] = useState([]);
   const [listaDeVendidos, setListaDeVendidos] = useState([]);
+  const [listaDePausados, setListaDePausados] = useState([]);
   const [totalImoveis, setTotalImoveis] = useState(0);
   const [precoMedio, setPrecoMedio] = useState(0);
   const [mensagens, setMensagens] = useState([]);
+  const [alert, setAlert] = useState({ open: false, severity: 'success', message: '' });
+
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false });
+  };
 
   useEffect(() => {
     const fetchImoveis = async () => {
@@ -111,45 +118,6 @@ const ListaImoveisPage = () => {
     fetchImoveis();
   }, []);
 
-  const togglePopup = () => {
-    setIsPopupOpen(!isPopupOpen);
-  };
-
-  // Função para marcar o imóvel como vendido e movê-lo para uma lista de vendidos
-  const handleMarkAsSold = async (id) => {
-    try {
-      const db = getDatabase();
-      const imovelRef = ref(db, `addresses/${id}`);
-      const vendidosRef = ref(db, 'vendidos');
-
-      // Obter os dados do imóvel que será marcado como vendido
-      const snapshot = await get(imovelRef);
-      if (snapshot.exists()) {
-        const imovelData = snapshot.val();
-        // Adicionar o imóvel à lista de vendidos com a data de venda atual
-        const dataVenda = new Date().toISOString(); // ISO string da data e hora atual
-        await push(vendidosRef, { ...imovelData, dataVenda });
-        // Remover o imóvel da lista de imóveis principal
-        await remove(imovelRef);
-        // Atualizar a lista de imóveis
-        setListaDeImoveis(listaDeImoveis.filter(imovel => imovel.id !== id));
-      }
-    } catch (error) {
-      console.error('Erro ao marcar o imóvel como vendido:', error);
-    }
-  };
-
-  const handleDeleteMessage = async (id) => {
-    try {
-      const db = getDatabase();
-      const messageRef = ref(db, `messages/${id}`);
-      await remove(messageRef);
-      setMensagens(mensagens.filter(message => message.id !== id));
-    } catch (error) {
-      console.error('Erro ao excluir mensagem:', error);
-    }
-  };
-
   useEffect(() => {
     const fetchVendidos = async () => {
       try {
@@ -165,6 +133,23 @@ const ListaImoveisPage = () => {
     };
 
     fetchVendidos();
+  }, []);
+
+  useEffect(() => {
+    const fetchPausados = async () => {
+      try {
+        const db = getDatabase();
+        const snapshot = await get(ref(db, 'pausados'));
+        if (snapshot.exists()) {
+          const pausados = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
+          setListaDePausados(pausados);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar imóveis pausados:', error);
+      }
+    };
+
+    fetchPausados();
   }, []);
 
   useEffect(() => {
@@ -184,10 +169,47 @@ const ListaImoveisPage = () => {
     fetchMensagens();
   }, []);
 
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
+  };
+
+  const handleMarkAsSold = async (id) => {
+    try {
+      const db = getDatabase();
+      const imovelRef = ref(db, `addresses/${id}`);
+      const vendidosRef = ref(db, 'vendidos');
+
+      const snapshot = await get(imovelRef);
+      if (snapshot.exists()) {
+        const imovelData = snapshot.val();
+        const dataVenda = new Date().toISOString();
+        await push(vendidosRef, { ...imovelData, dataVenda });
+        await remove(imovelRef);
+        setListaDeImoveis(listaDeImoveis.filter(imovel => imovel.id !== id));
+      }
+    } catch (error) {
+      console.error('Erro ao marcar o imóvel como vendido:', error);
+    }
+  };
+
+  const handleDeleteMessage = async (id) => {
+    console.log('Deleting message with ID:', id);
+    try {
+      const db = getDatabase();
+      const messageRef = ref(db, `messages/${id}`);
+      await remove(messageRef);
+      setMensagens(mensagens.filter(message => message.id !== id));
+      setAlert({ open: true, severity: 'success', message: 'Mensagem excluída com sucesso!' });
+    } catch (error) {
+      console.error('Erro ao excluir mensagem:', error);
+      setAlert({ open: true, severity: 'error', message: 'Erro ao excluir mensagem.' });
+    }
+  };
+
   return (
     <>
       <MenuAppAdm />
-      <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative ">
+      <div className="min-h-screen bg-gray-700 py-12 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-6">
             <House />
@@ -201,7 +223,7 @@ const ListaImoveisPage = () => {
             <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
               <div className="p-8 max-w-xl mx-auto rounded-md shadow-lg flex flex-col items-center relative">
                 <CadForm />
-                <div className='mt-6 flex items-center justify-center'>
+                <div className="mt-6 flex items-center justify-center">
                   <Button onClick={togglePopup} variant="contained" color="error">
                     Fechar Popup
                   </Button>
@@ -218,23 +240,31 @@ const ListaImoveisPage = () => {
           <div className="rounded-lg border border-gray-400 overflow-hidden" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeImoveis.map((imovel) => (
-                <ImovelCard key={imovel.id}
-                  valor={imovel.price}
-                  quartos={imovel.bedrooms}
-                  banheiros={imovel.bathrooms}
-                  {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
+                <ImovelCard key={`${imovel.id}-available`} {...imovel} origin="available" onImovelVendido={handleMarkAsSold} />
               ))}
             </div>
           </div>
           <div className="rounded-lg border border-gray-400 overflow-hidden mt-6" style={{ overflowY: 'auto' }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
               {listaDeVendidos.map((imovel) => (
-                <ImovelCard key={imovel.id} {...imovel} origin="sold" />
+                <ImovelCard key={`${imovel.id}-sold`} {...imovel} origin="sold" />
+              ))}
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-400 overflow-hidden mt-6" style={{ overflowY: 'auto' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 scrollbar-thin scrollbar-thumb-lilac scrollbar-track-gray-200">
+              {listaDePausados.map((imovel) => (
+                <ImovelCard key={`${imovel.id}-paused`} {...imovel} origin="paused" />
               ))}
             </div>
           </div>
         </div>
       </div>
+      <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
