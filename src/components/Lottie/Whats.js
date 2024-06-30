@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Lottie from "react-lottie";
+import Lottie from "lottie-react";
 import animationData from '../icons/Animation - 1710174324735.json';
 
 const Whats = () => {
