@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../icons/system-regular-40-add-card.json';
 
 const AnimatedIcon = () => {
-  
+
   const [isAnimationActive, setIsAnimationActive] = useState(false);
   const [isMouseOver, setIsMouseOver] = useState(false);
 

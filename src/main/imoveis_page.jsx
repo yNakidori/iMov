@@ -20,6 +20,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { Typography } from '@mui/material';
 
 const MensagensComponent = ({ mensagens, onDeleteMessage }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -216,6 +217,7 @@ const ListaImoveisPage = () => {
             <div className="flex items-center">
               <button onClick={togglePopup} className="text-indigo-600 hover:text-indigo-900">
                 <AnimatedIcon style={{ width: '32px', height: '32px', marginLeft: '8px' }} />
+                <Typography variant="h6" component="h1" className="ml-2">Cadastrar Imóvel</Typography>
               </button>
             </div>
           </div>
