@@ -33,7 +33,7 @@ function App() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/users'); // Certifique-se de que a URL está correta
+        const response = await fetch('http://localhost:5000/api/users');
         const data = await response.json();
         setUsers(data);
       } catch (error) {

@@ -4,6 +4,8 @@ import ImovelCardFull from '../components/ImovelCardFull';
 import { getDatabase, ref, get, push } from 'firebase/database';
 import Whats from '../components/Lottie/Whats';
 import { Modal, TextField, Button, Typography, CircularProgress } from '@mui/material';
+import { hetHihgEndPropertiesImages } from '../unsplashService';
+import capa from '../components/images/filo_thumb.jpg'
 
 const NavPage = () => {
   const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]);
@@ -104,6 +106,7 @@ const NavPage = () => {
   return (
     <div className='bg-gray-100 min-h-screen'>
       <MenuAppBar />
+      <div className="bg-cover bg-center h-screen" style={{ backgroundImage: `url(${capa})` }} />
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-center mb-4">
           <div className="relative flex items-stretch w-full max-w-lg">

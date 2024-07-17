@@ -229,6 +229,7 @@ const CadForm = () => {
                 value={neighborhood}
                 onChange={handleChange}
                 sx={{ marginTop: '8px' }}
+                disabled={!city}
               />
             </FormControl>
           </Grid>
