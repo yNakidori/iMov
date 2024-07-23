@@ -1,13 +1,12 @@
 import { Fragment, useState, useEffect } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getDatabase, ref, get } from 'firebase/database';
 
 const navigation = [
-    { name: 'Painel', href: '/lista', current: true },
-    { name: 'Nossos Imóveis', href: '/navpage', current: false },
-    { name: 'Cadastre um novo perfil', href: 'app', current: false },
+    { name: 'Painel', href: '/lista', current: false },
+    { name: 'Cadastre um novo perfil', href: '/app', current: false },
     { name: 'Novidades', href: '/novidades', current: false },
 ];
 
@@ -16,6 +15,7 @@ function classNames(...classes) {
 }
 
 export default function MenuAppAdm() {
+    const location = useLocation();
     const [novidades, setNovidades] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
 
@@ -38,13 +38,13 @@ export default function MenuAppAdm() {
     }, []);
 
     return (
-        <Disclosure as="nav" className="bg-gray-800">
+        <Disclosure as="nav" className="bg-red-800">
             {({ open }) => (
                 <>
                     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                         <div className="relative flex h-16 items-center justify-between">
                             <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-200 hover:bg-red-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                                     <span className="absolute -inset-0.5" />
                                     <span className="sr-only">Abrir menu principal</span>
                                     {open ? (
@@ -64,31 +64,34 @@ export default function MenuAppAdm() {
                                 </div>
                                 <div className="hidden sm:ml-6 sm:block">
                                     <div className="flex space-x-4">
-                                        {navigation.map((item) => (
-                                            <a
-                                                key={item.name}
-                                                href={item.href}
-                                                className={classNames(
-                                                    item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                                    'rounded-md px-3 py-2 text-sm font-medium'
-                                                )}
-                                                aria-current={item.current ? 'page' : undefined}
-                                            >
-                                                {item.name}
-                                            </a>
-                                        ))}
+                                        {navigation.map((item) => {
+                                            const isCurrent = location.pathname === item.href;
+                                            return (
+                                                <Link
+                                                    key={item.name}
+                                                    to={item.href}
+                                                    className={classNames(
+                                                        isCurrent ? 'bg-red-700 text-white' : 'text-gray-300 hover:bg-red-600 hover:text-white',
+                                                        'rounded-md px-3 py-2 text-sm font-medium'
+                                                    )}
+                                                    aria-current={isCurrent ? 'page' : undefined}
+                                                >
+                                                    {item.name}
+                                                </Link>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
                             <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                                 <Menu as="div" className="relative ml-3">
                                     <div>
-                                        <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                                        <Menu.Button className="relative flex rounded-full bg-red-600 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-800">
                                             <span className="absolute -inset-1.5" />
                                             <span className="sr-only">Ver notificações</span>
-                                            <BellIcon className="h-6 w-6" aria-hidden="true" />
+                                            <BellIcon className="h-6 w-6 text-white" aria-hidden="true" />
                                             {notificationCount > 0 && (
-                                                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/3 -translate-y-1/3 bg-red-600 rounded-full">
+                                                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/3 -translate-y-1/3 bg-red-700 rounded-full">
                                                     {notificationCount}
                                                 </span>
                                             )}
@@ -124,10 +127,10 @@ export default function MenuAppAdm() {
                             <div className="absolute inset-y-0 right-16 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                                 <Menu as="div" className="relative ml-3">
                                     <div>
-                                        <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                                        <Menu.Button className="relative flex rounded-full bg-red-600 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-800">
                                             <span className="absolute -inset-1.5" />
                                             <span className="sr-only">Abrir menu de usuário</span>
-                                            <UserCircleIcon className="h-8 w-8 rounded-full text-white" aria-hidden="true" />
+                                            <UserCircleIcon className="h-8 w-8 text-white" aria-hidden="true" />
                                         </Menu.Button>
                                     </div>
                                     <Transition

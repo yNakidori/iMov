@@ -11,6 +11,7 @@ import NovidadesPage from "../main/novidades_page";
 import ChatPage from "../main/chat_page";
 import VisualizationPage from "../main/visualization_page";
 import InstagramPage from "../main/instagram_page";
+import FiloPage from "../main/filo_page";
 
 const RoutesComponent = () => {
   return (
@@ -27,6 +28,7 @@ const RoutesComponent = () => {
         <Route exact path="/chat" element={<ChatPage />} />
         <Route exact path="/visualization" element={<VisualizationPage />} />
         <Route exact path="/instagram" element={<InstagramPage />} />
+        <Route exact path="/filo" element={<FiloPage />} />
       </Routes>
     </BrowserRouter>
   );

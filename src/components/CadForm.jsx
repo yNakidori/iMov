@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { getDatabase, ref as databaseRef, push } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import {
@@ -8,7 +9,6 @@ import {
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { NumericFormat } from 'react-number-format';
 
-// Lista de cidades e bairros (exemplo)
 const cidades = {
   'São Paulo': ['Centro', 'Zona Sul', 'Zona Oeste', 'Zona Norte', 'Zona Leste'],
   'Rio de Janeiro': ['Centro', 'Zona Sul', 'Zona Oeste', 'Zona Norte'],
@@ -22,7 +22,7 @@ const CadForm = () => {
     price: '',
     consultPrice: false,
     video: null,
-    images: Array(6).fill(null),
+    images: [],
     saleOrRent: '',
     propertyType: '',
     bedrooms: '',
@@ -30,7 +30,11 @@ const CadForm = () => {
     petsAllowed: false,
     furnished: false,
     garageSpaces: '',
-    description: ''
+    description: '',
+    area: '',
+    nomeProprietario: '',
+    emailProprietario: '',
+    observacao: ''
   });
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -60,19 +64,25 @@ const CadForm = () => {
     }
   };
 
-  const handleImageChange = (index) => (e) => {
-    if (e.target.files[0]) {
-      const newImages = [...formData.images];
-      newImages[index] = e.target.files[0];
-      setFormData({ ...formData, images: newImages });
-    }
-  };
+  const onDrop = useCallback((acceptedFiles) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      images: [...prevData.images, ...acceptedFiles]
+    }));
+  }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: 'image/*',
+    maxFiles: 6,
+    multiple: true
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
+    const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description, area, nomeProprietario, emailProprietario, observacao } = formData;
 
-    if (!images.some(image => image)) {
+    if (images.length === 0) {
       setAlert({ open: true, severity: 'error', message: 'Selecione pelo menos uma imagem.' });
       return;
     }
@@ -117,7 +127,11 @@ const CadForm = () => {
         petsAllowed,
         furnished,
         garageSpaces,
-        description
+        description,
+        area,
+        nomeProprietario,
+        emailProprietario,
+        observacao
       });
 
       setFormData({
@@ -126,7 +140,7 @@ const CadForm = () => {
         price: '',
         consultPrice: false,
         video: null,
-        images: Array(6).fill(null),
+        images: [],
         saleOrRent: '',
         propertyType: '',
         bedrooms: '',
@@ -134,7 +148,11 @@ const CadForm = () => {
         petsAllowed: false,
         furnished: false,
         garageSpaces: '',
-        description: ''
+        description: '',
+        area: '',
+        nomeProprietario: '',
+        emailProprietario: '',
+        observacao: ''
       });
       setProgress(0);
       setUploading(false);
@@ -147,11 +165,11 @@ const CadForm = () => {
     }
   };
 
-  const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description } = formData;
-  const allFieldsReady = city && neighborhood && (price || consultPrice) && images.some(image => image) && !uploading;
+  const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description, area, nomeProprietario, emailProprietario, observacao } = formData;
+  const allFieldsReady = city && neighborhood && (price || consultPrice) && images.length > 0 && !uploading;
 
   return (
-    <Box sx={{ maxWidth: '600px', margin: 'auto', padding: '16px', backgroundColor: 'white', borderRadius: '16px', boxShadow: 3 }}>
+    <Box sx={{ maxWidth: '600px', margin: 'auto', padding: '16px', backgroundColor: 'white', borderRadius: '16px', boxShadow: 3, height: '80vh', overflowY: 'auto' }}>
       <Typography variant="h6" gutterBottom>
         Adicionar um imóvel
       </Typography>
@@ -261,63 +279,116 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel>Tipo de Propriedade</InputLabel>
+              <InputLabel>Tipo de Imóvel</InputLabel>
               <Select
                 name="propertyType"
                 value={propertyType}
                 onChange={handleChange}
-                label="Tipo de Propriedade"
+                label="Tipo de Imóvel"
               >
                 <MenuItem value="casa">Casa</MenuItem>
                 <MenuItem value="apartamento">Apartamento</MenuItem>
-                <MenuItem value="condominio">Condomínio</MenuItem>
+                <MenuItem value="terreno">Terreno</MenuItem>
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
-              label="Quartos"
+              label="Número de Quartos"
               variant="outlined"
               fullWidth
-              type="number"
               name="bedrooms"
               value={bedrooms}
               onChange={handleChange}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
-              label="Banheiros"
+              label="Número de Banheiros"
               variant="outlined"
               fullWidth
-              type="number"
               name="bathrooms"
               value={bathrooms}
               onChange={handleChange}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
-              label="Vagas de Garagem"
+              label="Número de Vagas na Garagem"
               variant="outlined"
               fullWidth
-              type="number"
               name="garageSpaces"
               value={garageSpaces}
               onChange={handleChange}
             />
           </Grid>
           <Grid item xs={6}>
-            <FormControlLabel
-              control={<Checkbox checked={petsAllowed} onChange={handleChange} name="petsAllowed" />}
-              label="Aceita Pets"
+            <TextField
+              label="Área (m²)"
+              variant="outlined"
+              fullWidth
+              name="area"
+              value={area}
+              onChange={handleChange}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={petsAllowed} onChange={handleChange} name="petsAllowed" />}
+              label="Aceita Animais"
+            />
             <FormControlLabel
               control={<Checkbox checked={furnished} onChange={handleChange} name="furnished" />}
               label="Mobiliado"
             />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Nome do Proprietário"
+              variant="outlined"
+              fullWidth
+              name="nomeProprietario"
+              value={nomeProprietario}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Email do Proprietário"
+              variant="outlined"
+              fullWidth
+              name="emailProprietario"
+              value={emailProprietario}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Observação"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={4}
+              name="observacao"
+              value={observacao}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <div {...getRootProps()} style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center', cursor: 'pointer' }}>
+              <input {...getInputProps()} />
+              <CloudUploadIcon />
+              <Typography>Arraste e solte imagens aqui, ou clique para selecionar</Typography>
+            </div>
+            {images.length > 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', marginTop: '10px' }}>
+                {images.map((image, index) => (
+                  <Box key={index} sx={{ position: 'relative', margin: '5px' }}>
+                    <img src={URL.createObjectURL(image)} alt={`preview ${index}`} width="100" height="100" style={{ objectFit: 'cover' }} />
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Grid>
           <Grid item xs={12}>
             <Button
@@ -326,68 +397,36 @@ const CadForm = () => {
               startIcon={<CloudUploadIcon />}
               fullWidth
             >
-              Upload Vídeo (MP4)
+              Upload Video
               <input
                 type="file"
                 hidden
+                accept="video/*"
                 name="video"
-                accept="video/mp4"
                 onChange={handleChange}
               />
             </Button>
             {video && (
-              <Typography variant="body2" sx={{ marginTop: '8px' }}>
+              <Typography variant="body2" sx={{ marginTop: '10px' }}>
                 {video.name}
               </Typography>
             )}
           </Grid>
           <Grid item xs={12}>
-            <Typography variant="subtitle1">Imagens</Typography>
-            <Grid container spacing={2}>
-              {images.map((_, index) => (
-                <Grid item xs={4} key={index}>
-                  <Button
-                    variant="contained"
-                    component="label"
-                    startIcon={<CloudUploadIcon />}
-                    fullWidth
-                  >
-                    Imagem {index + 1}
-                    <input
-                      type="file"
-                      hidden
-                      name={`image${index + 1}`}
-                      accept="image/*"
-                      onChange={handleImageChange(index)}
-                    />
-                  </Button>
-                  {images[index] && (
-                    <Typography variant="body2" sx={{ marginTop: '8px' }}>
-                      {images[index].name}
-                    </Typography>
-                  )}
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-          <Grid item xs={12} display="flex" justifyContent="space-between" mt={2}>
-            <Button variant="outlined" color="secondary" onClick={() => window.location.reload()}>
-              Cancelar
-            </Button>
-            <Button type="submit" variant="contained" color="primary" disabled={!allFieldsReady}>
-              Enviar
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={!allFieldsReady}
+            >
+              {uploading ? <CircularProgress size={24} /> : 'Enviar'}
             </Button>
           </Grid>
         </Grid>
-        {uploading && (
-          <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
-            <CircularProgress variant="determinate" value={progress} />
-            <Typography variant="body2" sx={{ marginLeft: '8px' }}>{progress}%</Typography>
-          </Box>
-        )}
       </form>
       <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
-        <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseAlert} severity={alert.severity}>
           {alert.message}
         </Alert>
       </Snackbar>

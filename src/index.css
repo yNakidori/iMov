@@ -33,3 +33,7 @@
     font-family: 'PlaywriteUSTrad';
     src: url('./components/fonts/Playwrite_US_Trad/static/PlaywriteUSTrad-Regular.ttf') format('truetype');
 }
+
+.custom-bg-color {
+    background-color: #731000;
+}
