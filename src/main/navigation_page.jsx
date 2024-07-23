@@ -4,8 +4,8 @@ import ImovelCardFull from '../components/ImovelCardFull';
 import { getDatabase, ref, get, push } from 'firebase/database';
 import Whats from '../components/Lottie/Whats';
 import { Modal, TextField, Button, Typography, CircularProgress } from '@mui/material';
-import { hetHihgEndPropertiesImages } from '../unsplashService';
 import capa from '../components/images/filo_thumb.jpg'
+import SidebarInfo from '../components/Lottie/Filo';
 
 const NavPage = () => {
   const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]);
@@ -152,6 +152,7 @@ const NavPage = () => {
           )}
         </div>
         <div className="fixed bottom-16 right-10">
+          <SidebarInfo />
           <Whats />
         </div>
       </div>
