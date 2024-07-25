@@ -1,33 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import MenuAppBar from '../components/MenuAppBar';
-import ImovelCardFull from '../components/ImovelCardFull';
-import { getDatabase, ref, get, push } from 'firebase/database';
-import Whats from '../components/Lottie/Whats';
-import { Modal, TextField, Button, Typography, CircularProgress } from '@mui/material';
-import capa from '../components/images/filo_thumb.jpg'
-import SidebarInfo from '../components/Lottie/Filo';
+import React, { useState, useEffect } from "react";
+import MenuAppBar from "../components/MenuAppBar";
+import ImovelCardFull from "../components/ImovelCardFull";
+import { getDatabase, ref, get, push } from "firebase/database";
+import Whats from "../components/Lottie/Whats";
+import {
+  Modal,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+import capa from "../components/images/filo_thumb.jpg";
+import SidebarInfo from "../components/Lottie/Filo";
 
 const NavPage = () => {
   const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]);
   const [listaDeImoveis, setListaDeImoveis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [noResults, setNoResults] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({
-    nome: '',
-    contato: '',
-    email: '',
-    mensagem: '',
-    telefone: ''
+    nome: "",
+    contato: "",
+    email: "",
+    mensagem: "",
+    telefone: "",
   });
   const [formErrors, setFormErrors] = useState({
     nome: true,
     contato: true,
     email: false,
     mensagem: true,
-    telefone: true
+    telefone: true,
   });
 
   useEffect(() => {
@@ -35,15 +41,17 @@ const NavPage = () => {
       setIsLoading(true);
       try {
         const db = getDatabase();
-        const snapshot = await get(ref(db, 'addresses'));
+        const snapshot = await get(ref(db, "addresses"));
         if (snapshot.exists()) {
-          const imoveis = Object.entries(snapshot.val()).map(([key, value]) => ({ id: key, ...value }));
+          const imoveis = Object.entries(snapshot.val()).map(
+            ([key, value]) => ({ id: key, ...value })
+          );
           setOriginalListaDeImoveis(imoveis);
           setListaDeImoveis(imoveis);
           setNoResults(false);
         }
       } catch (error) {
-        console.error('Erro ao buscar imóveis:', error);
+        console.error("Erro ao buscar imóveis:", error);
       }
       setIsLoading(false);
     };
@@ -52,14 +60,14 @@ const NavPage = () => {
   }, [currentPage]);
 
   const handleScroll = () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-      setCurrentPage(prevPage => prevPage + 1);
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      setCurrentPage((prevPage) => prevPage + 1);
     }
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleSearchChange = (event) => {
@@ -78,35 +86,40 @@ const NavPage = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
     setFormErrors({
       ...formErrors,
-      [name]: value === ''
+      [name]: value === "",
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const hasErrors = Object.values(formErrors).some(error => error);
+    const hasErrors = Object.values(formErrors).some((error) => error);
     if (!hasErrors) {
       try {
         const db = getDatabase();
-        const messagesRef = ref(db, 'messages');
+        const messagesRef = ref(db, "messages");
         await push(messagesRef, formData);
         setIsFormOpen(false);
-        alert('Formulário enviado com sucesso!');
+        alert("Formulário enviado com sucesso!");
       } catch (error) {
-        console.error('Erro ao enviar o formulário:', error);
-        alert('Erro ao enviar o formulário. Por favor, tente novamente mais tarde.');
+        console.error("Erro ao enviar o formulário:", error);
+        alert(
+          "Erro ao enviar o formulário. Por favor, tente novamente mais tarde."
+        );
       }
     }
   };
 
   return (
-    <div className='bg-gray-100 min-h-screen'>
+    <div className="bg-gray-100 min-h-screen">
       <MenuAppBar />
-      <div className="bg-cover bg-center h-screen" style={{ backgroundImage: `url(${capa})` }} />
+      <div
+        className="bg-cover bg-center h-screen"
+        style={{ backgroundImage: `url(${capa})` }}
+      />
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-center mb-4">
           <div className="relative flex items-stretch w-full max-w-lg">
@@ -118,8 +131,19 @@ const NavPage = () => {
               className="pl-4 py-2 flex-grow rounded-l border border-gray-300 focus:outline-none"
             />
             <button className="flex-shrink-0 p-2 border border-l-0 border-gray-300 bg-gray-100 rounded-r">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
             </button>
           </div>
@@ -143,6 +167,7 @@ const NavPage = () => {
               mobiliado={imovel.furnished}
               garagem={imovel.garageSpaces}
               descricao={imovel.description}
+              area={imovel.area}
             />
           ))}
           {isLoading && (
@@ -157,9 +182,10 @@ const NavPage = () => {
         </div>
       </div>
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
-
         <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md mx-auto mt-20">
-          <Typography variant="h6" className="mb-4 text-center">Mande uma mensagem direta</Typography>
+          <Typography variant="h6" className="mb-4 text-center">
+            Mande uma mensagem direta
+          </Typography>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
@@ -168,7 +194,7 @@ const NavPage = () => {
               value={formData.nome}
               onChange={handleChange}
               error={formErrors.nome}
-              helperText={formErrors.nome ? 'Campo obrigatório' : ''}
+              helperText={formErrors.nome ? "Campo obrigatório" : ""}
               className="mb-4"
             />
             <TextField
@@ -178,7 +204,7 @@ const NavPage = () => {
               value={formData.email}
               onChange={handleChange}
               error={formErrors.email}
-              helperText={formErrors.email ? 'Campo obrigatório' : ''}
+              helperText={formErrors.email ? "Campo obrigatório" : ""}
               className="mb-4"
             />
             <TextField
@@ -188,7 +214,7 @@ const NavPage = () => {
               value={formData.telefone}
               onChange={handleChange}
               error={formErrors.telefone}
-              helperText={formErrors.telefone ? 'Campo obrigatório' : ''}
+              helperText={formErrors.telefone ? "Campo obrigatório" : ""}
               className="mb-4"
             />
             <TextField
@@ -198,12 +224,14 @@ const NavPage = () => {
               value={formData.mensagem}
               onChange={handleChange}
               error={formErrors.mensagem}
-              helperText={formErrors.mensagem ? 'Campo obrigatório' : ''}
+              helperText={formErrors.mensagem ? "Campo obrigatório" : ""}
               multiline
               rows={4}
               className="mb-4"
             />
-            <Button type="submit" variant="contained" color="primary" fullWidth>Enviar</Button>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Enviar
+            </Button>
           </form>
         </div>
       </Modal>
