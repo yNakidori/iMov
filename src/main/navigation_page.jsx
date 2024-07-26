@@ -13,6 +13,67 @@ import {
 import capa from "../components/images/filo_thumb.jpg";
 import SidebarInfo from "../components/Lottie/Filo";
 
+const ContactForm = ({ formData, setFormData, handleSubmit }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const fontStyle = {
+    fontFamily: "PlaywriteDKTrad, sans-serif",
+  };
+
+  return (
+    <div className="absolute top-10 left-10 bg-white p-8 rounded-lg shadow-xl z-10 max-w-md w-full">
+      <Typography
+        variant="h4"
+        className="mb-4 text-center text-gray-800"
+        style={fontStyle}
+      >
+        ENCONTRE O LAR PERFEITO
+      </Typography>
+      <Typography
+        variant="subtitle1"
+        className="mb-4 text-center text-gray-600"
+      >
+        DESCUBRA OS MELHORES IMÓVEIS AQUI
+      </Typography>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <TextField
+          fullWidth
+          label="Nome"
+          name="nome"
+          value={formData.nome}
+          onChange={handleChange}
+          className="mb-4"
+        />
+        <TextField
+          fullWidth
+          label="Email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          className="mb-4"
+        />
+        <TextField
+          fullWidth
+          label="WhatsApp"
+          name="telefone"
+          value={formData.telefone}
+          onChange={handleChange}
+          className="mb-4"
+        />
+        <Button type="submit" variant="contained" color="primary" fullWidth>
+          Saber Mais
+        </Button>
+      </form>
+    </div>
+  );
+};
+
 const NavPage = () => {
   const [originalListaDeImoveis, setOriginalListaDeImoveis] = useState([]);
   const [listaDeImoveis, setListaDeImoveis] = useState([]);
@@ -20,20 +81,12 @@ const NavPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [noResults, setNoResults] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     nome: "",
     contato: "",
     email: "",
     mensagem: "",
     telefone: "",
-  });
-  const [formErrors, setFormErrors] = useState({
-    nome: true,
-    contato: true,
-    email: false,
-    mensagem: true,
-    telefone: true,
   });
 
   useEffect(() => {
@@ -82,34 +135,18 @@ const NavPage = () => {
     setNoResults(searchTerm && filteredImoveis.length === 0);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    setFormErrors({
-      ...formErrors,
-      [name]: value === "",
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const hasErrors = Object.values(formErrors).some((error) => error);
-    if (!hasErrors) {
-      try {
-        const db = getDatabase();
-        const messagesRef = ref(db, "messages");
-        await push(messagesRef, formData);
-        setIsFormOpen(false);
-        alert("Formulário enviado com sucesso!");
-      } catch (error) {
-        console.error("Erro ao enviar o formulário:", error);
-        alert(
-          "Erro ao enviar o formulário. Por favor, tente novamente mais tarde."
-        );
-      }
+    try {
+      const db = getDatabase();
+      const messagesRef = ref(db, "messages");
+      await push(messagesRef, formData);
+      alert("Formulário enviado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar o formulário:", error);
+      alert(
+        "Erro ao enviar o formulário. Por favor, tente novamente mais tarde."
+      );
     }
   };
 
@@ -117,9 +154,15 @@ const NavPage = () => {
     <div className="bg-gray-100 min-h-screen">
       <MenuAppBar />
       <div
-        className="bg-cover bg-center h-screen"
+        className="bg-cover bg-center h-screen relative"
         style={{ backgroundImage: `url(${capa})` }}
-      />
+      >
+        <ContactForm
+          formData={formData}
+          setFormData={setFormData}
+          handleSubmit={handleSubmit}
+        />
+      </div>
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-center mb-4">
           <div className="relative flex items-stretch w-full max-w-lg">
@@ -181,60 +224,6 @@ const NavPage = () => {
           <Whats />
         </div>
       </div>
-      <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
-        <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md mx-auto mt-20">
-          <Typography variant="h6" className="mb-4 text-center">
-            Mande uma mensagem direta
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Seu Nome"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              error={formErrors.nome}
-              helperText={formErrors.nome ? "Campo obrigatório" : ""}
-              className="mb-4"
-            />
-            <TextField
-              fullWidth
-              label="Seu Email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={formErrors.email}
-              helperText={formErrors.email ? "Campo obrigatório" : ""}
-              className="mb-4"
-            />
-            <TextField
-              fullWidth
-              label="Seu Telefone"
-              name="telefone"
-              value={formData.telefone}
-              onChange={handleChange}
-              error={formErrors.telefone}
-              helperText={formErrors.telefone ? "Campo obrigatório" : ""}
-              className="mb-4"
-            />
-            <TextField
-              fullWidth
-              label="Mensagem"
-              name="mensagem"
-              value={formData.mensagem}
-              onChange={handleChange}
-              error={formErrors.mensagem}
-              helperText={formErrors.mensagem ? "Campo obrigatório" : ""}
-              multiline
-              rows={4}
-              className="mb-4"
-            />
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              Enviar
-            </Button>
-          </form>
-        </div>
-      </Modal>
     </div>
   );
 };
