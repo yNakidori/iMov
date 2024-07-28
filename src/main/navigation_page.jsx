@@ -3,13 +3,7 @@ import MenuAppBar from "../components/MenuAppBar";
 import ImovelCardFull from "../components/ImovelCardFull";
 import { getDatabase, ref, get, push } from "firebase/database";
 import Whats from "../components/Lottie/Whats";
-import {
-  Modal,
-  TextField,
-  Button,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
+import { TextField, Button, Typography, CircularProgress } from "@mui/material";
 import capa from "../components/images/filo_thumb.jpg";
 import SidebarInfo from "../components/Lottie/Filo";
 
@@ -27,20 +21,22 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
   };
 
   return (
-    <div className="absolute top-10 left-10 bg-white p-8 rounded-lg shadow-xl z-10 max-w-md w-full">
+    <div className="absolute top-10 left-10 p-10 rounded-lg shadow-xl z-10 max-w-xl w-full">
       <Typography
         variant="h4"
-        className="mb-4 text-center text-gray-800"
+        className="mb-6 text-center text-gray-800"
         style={fontStyle}
       >
-        ENCONTRE O LAR PERFEITO
+        Encontre o lar perfeito!
       </Typography>
-      <Typography
-        variant="subtitle1"
-        className="mb-4 text-center text-gray-600"
-      >
-        DESCUBRA OS MELHORES IMÓVEIS AQUI
-      </Typography>
+      <div className="mt-4 mb-2">
+        <Typography
+          variant="subtitle1"
+          className="mb-6 text-center text-gray-600"
+        >
+          DESCUBRA OS MELHORES IMÓVEIS AQUI
+        </Typography>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextField
           fullWidth
@@ -66,8 +62,8 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
           onChange={handleChange}
           className="mb-4"
         />
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Saber Mais
+        <Button type="submit" variant="contained" color="error" fullWidth>
+          Entre em contato
         </Button>
       </form>
     </div>
