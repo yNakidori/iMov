@@ -10,6 +10,7 @@
     "@babel/plugin-transform-private-methods": "^7.24.7",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@ffmpeg/ffmpeg": "^0.12.10",
     "@fontsource/roboto": "^5.0.13",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.4",
@@ -57,6 +58,7 @@
     "url": "^0.11.3",
     "use-react-countries": "^2.0.1",
     "util": "^0.12.5",
+    "watermarkjs": "^2.1.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

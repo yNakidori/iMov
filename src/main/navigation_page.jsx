@@ -21,7 +21,10 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
   };
 
   return (
-    <div className="absolute top-10 left-10 p-10 rounded-lg shadow-xl z-10 max-w-xl w-full">
+    <div
+      className="absolute top-10 left-10 p-10 rounded-lg shadow-xl z-10 max-w-xl w-full"
+      style={{ backgroundColor: "rgba(255, 255, 255, 0.75)" }}
+    >
       <Typography
         variant="h4"
         className="mb-6 text-center text-gray-800"
