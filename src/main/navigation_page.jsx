@@ -17,7 +17,7 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
   };
 
   const fontStyle = {
-    fontFamily: "PlaywriteDKTrad, sans-serif",
+    fontFamily: "Pacifico, sans-serif",
   };
 
   return (
