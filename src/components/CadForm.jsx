@@ -27,12 +27,6 @@ import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
 import { NumericFormat } from "react-number-format";
 import watermark from "watermarkjs";
 
-const cidades = {
-  "São Paulo": ["Centro", "Zona Sul", "Zona Oeste", "Zona Norte", "Zona Leste"],
-  "Rio de Janeiro": ["Centro", "Zona Sul", "Zona Oeste", "Zona Norte"],
-  "Belo Horizonte": ["Centro-Sul", "Leste", "Oeste", "Noroeste", "Pampulha"],
-};
-
 const CadForm = () => {
   const [formData, setFormData] = useState({
     city: "",
@@ -102,7 +96,7 @@ const CadForm = () => {
 
   const applyWatermark = async (file) => {
     const image = await watermark([file]).image(
-      watermark.text.lowerRight("Marca d'água", "48px Arial", "#FFF", 0.5)
+      watermark.text.lowerRight("©Filó Imobiliaria ", "58px Arial", "#FFF", 0.5)
     );
     return new Promise((resolve) => {
       const img = new Image();
@@ -333,19 +327,14 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel>Cidade</InputLabel>
-              <Select
+              <TextField
                 name="city"
                 value={city}
                 onChange={handleChange}
                 label="Cidade"
-              >
-                {Object.keys(cidades).map((cidade) => (
-                  <MenuItem key={cidade} value={cidade}>
-                    {cidade}
-                  </MenuItem>
-                ))}
-              </Select>
+                fullWidth
+                variant="outlined"
+              />
             </FormControl>
           </Grid>
           <Grid item xs={6}>
