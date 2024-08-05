@@ -1,44 +1,60 @@
-import React, { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { getDatabase, ref as databaseRef, push } from 'firebase/database';
-import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import React, { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { getDatabase, ref as databaseRef, push } from "firebase/database";
 import {
-  Button, TextField, Box, Typography, Select, MenuItem, FormControl, InputLabel,
-  Grid, Checkbox, FormControlLabel, CircularProgress, Snackbar, Alert
-} from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
-import { NumericFormat } from 'react-number-format';
-
-const cidades = {
-  'São Paulo': ['Centro', 'Zona Sul', 'Zona Oeste', 'Zona Norte', 'Zona Leste'],
-  'Rio de Janeiro': ['Centro', 'Zona Sul', 'Zona Oeste', 'Zona Norte'],
-  'Belo Horizonte': ['Centro-Sul', 'Leste', 'Oeste', 'Noroeste', 'Pampulha']
-};
+  getStorage,
+  ref as storageRef,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import {
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  Checkbox,
+  FormControlLabel,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
+import { NumericFormat } from "react-number-format";
+import watermark from "watermarkjs";
 
 const CadForm = () => {
   const [formData, setFormData] = useState({
-    city: '',
-    neighborhood: '',
-    price: '',
+    city: "",
+    neighborhood: "",
+    price: "",
     consultPrice: false,
     video: null,
     images: [],
-    saleOrRent: '',
-    propertyType: '',
-    bedrooms: '',
-    bathrooms: '',
+    saleOrRent: "",
+    propertyType: "",
+    bedrooms: "",
+    bathrooms: "",
     petsAllowed: false,
     furnished: false,
-    garageSpaces: '',
-    description: '',
-    area: '',
-    nomeProprietario: '',
-    emailProprietario: '',
-    observacao: ''
+    garageSpaces: "",
+    description: "",
+    area: "",
+    nomeProprietario: "",
+    emailProprietario: "",
+    observacao: "",
   });
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [alert, setAlert] = useState({ open: false, severity: 'success', message: '' });
+  const [alert, setAlert] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
   const handleCloseAlert = () => {
     setAlert({ ...alert, open: false });
@@ -46,20 +62,20 @@ const CadForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === 'checkbox') {
+    if (type === "checkbox") {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: checked
+        [name]: checked,
       }));
     } else if (files) {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: files[0]
+        [name]: files[0],
       }));
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -67,23 +83,66 @@ const CadForm = () => {
   const onDrop = useCallback((acceptedFiles) => {
     setFormData((prevData) => ({
       ...prevData,
-      images: [...prevData.images, ...acceptedFiles]
+      images: [...prevData.images, ...acceptedFiles],
     }));
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: 'image/*',
+    accept: "image/*",
     maxFiles: 6,
-    multiple: true
+    multiple: true,
   });
+
+  const applyWatermark = async (file) => {
+    const image = await watermark([file]).image(
+      watermark.text.lowerRight("©Filó Imobiliaria ", "58px Arial", "#FFF", 0.5)
+    );
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = image.src;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          resolve(new File([blob], file.name, { type: file.type }));
+        }, file.type);
+      };
+    });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description, area, nomeProprietario, emailProprietario, observacao } = formData;
+    const {
+      city,
+      neighborhood,
+      price,
+      consultPrice,
+      video,
+      images,
+      saleOrRent,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      petsAllowed,
+      furnished,
+      garageSpaces,
+      description,
+      area,
+      nomeProprietario,
+      emailProprietario,
+      observacao,
+    } = formData;
 
     if (images.length === 0) {
-      setAlert({ open: true, severity: 'error', message: 'Selecione pelo menos uma imagem.' });
+      setAlert({
+        open: true,
+        severity: "error",
+        message: "Selecione pelo menos uma imagem.",
+      });
       return;
     }
 
@@ -100,24 +159,32 @@ const CadForm = () => {
 
       const db = getDatabase();
       const storage = getStorage();
-      const imageUrls = await Promise.all(images.map(async (image) => {
-        if (!image) return null;
-        const imageRef = storageRef(storage, `images/${image.name}`);
-        await uploadBytesResumable(imageRef, image);
-        return await getDownloadURL(imageRef);
-      }));
+      const watermarkedImages = await Promise.all(
+        images.map(async (image) => {
+          const watermarkedImage = await applyWatermark(image);
+          return watermarkedImage;
+        })
+      );
 
-      let videoURL = '';
+      const imageUrls = await Promise.all(
+        watermarkedImages.map(async (image) => {
+          const imageRef = storageRef(storage, `images/${image.name}`);
+          await uploadBytesResumable(imageRef, image);
+          return await getDownloadURL(imageRef);
+        })
+      );
+
+      let videoURL = "";
       if (video) {
         const videoRef = storageRef(storage, `videos/${video.name}`);
         await uploadBytesResumable(videoRef, video);
         videoURL = await getDownloadURL(videoRef);
       }
 
-      await push(databaseRef(db, 'addresses'), {
+      await push(databaseRef(db, "addresses"), {
         city,
         neighborhood,
-        price: consultPrice ? 'Consulte com um corretor' : price,
+        price: consultPrice ? "Consulte com um corretor" : price,
         videoURL,
         imageUrls,
         saleOrRent,
@@ -131,45 +198,89 @@ const CadForm = () => {
         area,
         nomeProprietario,
         emailProprietario,
-        observacao
+        observacao,
       });
 
       setFormData({
-        city: '',
-        neighborhood: '',
-        price: '',
+        city: "",
+        neighborhood: "",
+        price: "",
         consultPrice: false,
         video: null,
         images: [],
-        saleOrRent: '',
-        propertyType: '',
-        bedrooms: '',
-        bathrooms: '',
+        saleOrRent: "",
+        propertyType: "",
+        bedrooms: "",
+        bathrooms: "",
         petsAllowed: false,
         furnished: false,
-        garageSpaces: '',
-        description: '',
-        area: '',
-        nomeProprietario: '',
-        emailProprietario: '',
-        observacao: ''
+        garageSpaces: "",
+        description: "",
+        area: "",
+        nomeProprietario: "",
+        emailProprietario: "",
+        observacao: "",
       });
       setProgress(0);
       setUploading(false);
-      setAlert({ open: true, severity: 'success', message: 'Formulário enviado com sucesso!' });
+      setAlert({
+        open: true,
+        severity: "success",
+        message: "Formulário enviado com sucesso!",
+      });
     } catch (error) {
-      console.error('Erro ao enviar o formulário:', error);
-      setAlert({ open: true, severity: 'error', message: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.' });
+      console.error("Erro ao enviar o formulário:", error);
+      setAlert({
+        open: true,
+        severity: "error",
+        message:
+          "Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.",
+      });
       setProgress(0);
       setUploading(false);
     }
   };
 
-  const { city, neighborhood, price, consultPrice, video, images, saleOrRent, propertyType, bedrooms, bathrooms, petsAllowed, furnished, garageSpaces, description, area, nomeProprietario, emailProprietario, observacao } = formData;
-  const allFieldsReady = city && neighborhood && (price || consultPrice) && images.length > 0 && !uploading;
+  const {
+    city,
+    neighborhood,
+    price,
+    consultPrice,
+    video,
+    images,
+    saleOrRent,
+    propertyType,
+    bedrooms,
+    bathrooms,
+    petsAllowed,
+    furnished,
+    garageSpaces,
+    description,
+    area,
+    nomeProprietario,
+    emailProprietario,
+    observacao,
+  } = formData;
+  const allFieldsReady =
+    city &&
+    neighborhood &&
+    (price || consultPrice) &&
+    images.length > 0 &&
+    !uploading;
 
   return (
-    <Box sx={{ maxWidth: '600px', margin: 'auto', padding: '16px', backgroundColor: 'white', borderRadius: '16px', boxShadow: 3, height: '80vh', overflowY: 'auto' }}>
+    <Box
+      sx={{
+        maxWidth: "600px",
+        margin: "auto",
+        padding: "16px",
+        backgroundColor: "white",
+        borderRadius: "16px",
+        boxShadow: 3,
+        height: "80vh",
+        overflowY: "auto",
+      }}
+    >
       <Typography variant="h6" gutterBottom>
         Adicionar um imóvel
       </Typography>
@@ -178,7 +289,18 @@ const CadForm = () => {
           <Grid item xs={12}>
             <FormControl variant="outlined" fullWidth>
               <FormControlLabel
-                control={<Checkbox checked={consultPrice} onChange={(e) => setFormData({ ...formData, consultPrice: e.target.checked, price: '' })} />}
+                control={
+                  <Checkbox
+                    checked={consultPrice}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        consultPrice: e.target.checked,
+                        price: "",
+                      })
+                    }
+                  />
+                }
                 label="Consulte com um corretor"
               />
               {!consultPrice && (
@@ -186,7 +308,9 @@ const CadForm = () => {
                   value={price}
                   onValueChange={(values) => {
                     const { formattedValue } = values;
-                    handleChange({ target: { name: 'price', value: formattedValue } });
+                    handleChange({
+                      target: { name: "price", value: formattedValue },
+                    });
                   }}
                   thousandSeparator="."
                   decimalSeparator=","
@@ -203,65 +327,27 @@ const CadForm = () => {
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel>Cidade</InputLabel>
-              <Select
+              <TextField
                 name="city"
                 value={city}
                 onChange={handleChange}
                 label="Cidade"
-              >
-                {Object.keys(cidades).map((cidade) => (
-                  <MenuItem key={cidade} value={cidade}>{cidade}</MenuItem>
-                ))}
-              </Select>
-              <TextField
-                label="Ou digite a cidade"
-                variant="outlined"
                 fullWidth
-                name="city"
-                value={city}
-                onChange={handleChange}
-                sx={{ marginTop: '8px' }}
+                variant="outlined"
               />
             </FormControl>
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel>Bairro</InputLabel>
-              <Select
+              <TextField
                 name="neighborhood"
                 value={neighborhood}
                 onChange={handleChange}
                 label="Bairro"
-                disabled={!city}
-              >
-                {city && cidades[city]?.map((bairro) => (
-                  <MenuItem key={bairro} value={bairro}>{bairro}</MenuItem>
-                ))}
-              </Select>
-              <TextField
-                label="Ou digite o bairro"
-                variant="outlined"
                 fullWidth
-                name="neighborhood"
-                value={neighborhood}
-                onChange={handleChange}
-                sx={{ marginTop: '8px' }}
-                disabled={!city}
+                variant="outlined"
               />
             </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Descrição"
-              variant="outlined"
-              fullWidth
-              multiline
-              rows={4}
-              name="description"
-              value={description}
-              onChange={handleChange}
-            />
           </Grid>
           <Grid item xs={6}>
             <FormControl variant="outlined" fullWidth>
@@ -272,8 +358,8 @@ const CadForm = () => {
                 onChange={handleChange}
                 label="Venda ou Aluguel"
               >
-                <MenuItem value="venda">Venda</MenuItem>
-                <MenuItem value="aluguel">Aluguel</MenuItem>
+                <MenuItem value="sale">Venda</MenuItem>
+                <MenuItem value="rent">Aluguel</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -286,146 +372,214 @@ const CadForm = () => {
                 onChange={handleChange}
                 label="Tipo de Imóvel"
               >
-                <MenuItem value="casa">Casa</MenuItem>
-                <MenuItem value="apartamento">Apartamento</MenuItem>
-                <MenuItem value="terreno">Terreno</MenuItem>
+                <MenuItem value="house">Casa</MenuItem>
+                <MenuItem value="apartment">Apartamento</MenuItem>
+                <MenuItem value="commercial">Comercial</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Número de Quartos"
-              variant="outlined"
-              fullWidth
               name="bedrooms"
               value={bedrooms}
               onChange={handleChange}
+              label="Quartos"
+              fullWidth
+              variant="outlined"
+              type="number"
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Número de Banheiros"
-              variant="outlined"
-              fullWidth
               name="bathrooms"
               value={bathrooms}
               onChange={handleChange}
+              label="Banheiros"
+              fullWidth
+              variant="outlined"
+              type="number"
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Número de Vagas na Garagem"
-              variant="outlined"
-              fullWidth
               name="garageSpaces"
               value={garageSpaces}
               onChange={handleChange}
+              label="Vagas na garagem"
+              fullWidth
+              variant="outlined"
+              type="number"
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Área (m²)"
-              variant="outlined"
-              fullWidth
               name="area"
               value={area}
               onChange={handleChange}
+              label="Área em m²"
+              fullWidth
+              variant="outlined"
+              type="number"
             />
           </Grid>
           <Grid item xs={12}>
+            <FormControl variant="outlined" fullWidth>
+              <TextField
+                name="description"
+                value={description}
+                onChange={handleChange}
+                label="Descrição"
+                fullWidth
+                variant="outlined"
+                multiline
+                rows={4}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body1" gutterBottom>
+              Imagens do imóvel
+            </Typography>
+            <Box
+              {...getRootProps()}
+              sx={{
+                border: "2px dashed grey",
+                borderRadius: "8px",
+                padding: "16px",
+                textAlign: "center",
+                cursor: "pointer",
+              }}
+            >
+              <input {...getInputProps()} />
+              <Typography variant="body2">
+                Arraste e solte as imagens aqui, ou clique para selecionar
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", flexWrap: "wrap", mt: 2 }}>
+              {images.map((image, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    position: "relative",
+                    width: "100px",
+                    height: "100px",
+                    margin: "8px",
+                  }}
+                >
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt={`preview ${index}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body1" gutterBottom>
+              Vídeo do imóvel (opcional)
+            </Typography>
+            <Box>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload
+                <input
+                  type="file"
+                  accept="video/*"
+                  hidden
+                  onChange={handleChange}
+                  name="video"
+                />
+              </Button>
+              {video && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {video.name}
+                </Typography>
+              )}
+            </Box>
+          </Grid>
+          <Grid item xs={12}>
             <FormControlLabel
-              control={<Checkbox checked={petsAllowed} onChange={handleChange} name="petsAllowed" />}
-              label="Aceita Animais"
+              control={
+                <Checkbox
+                  checked={petsAllowed}
+                  onChange={handleChange}
+                  name="petsAllowed"
+                />
+              }
+              label="Aceita animais"
             />
             <FormControlLabel
-              control={<Checkbox checked={furnished} onChange={handleChange} name="furnished" />}
+              control={
+                <Checkbox
+                  checked={furnished}
+                  onChange={handleChange}
+                  name="furnished"
+                />
+              }
               label="Mobiliado"
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Nome do Proprietário"
-              variant="outlined"
-              fullWidth
               name="nomeProprietario"
               value={nomeProprietario}
               onChange={handleChange}
+              label="Nome do Proprietário"
+              fullWidth
+              variant="outlined"
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Email do Proprietário"
-              variant="outlined"
-              fullWidth
               name="emailProprietario"
               value={emailProprietario}
               onChange={handleChange}
+              label="Email do Proprietário"
+              fullWidth
+              variant="outlined"
+              type="email"
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Observação"
-              variant="outlined"
-              fullWidth
-              multiline
-              rows={4}
               name="observacao"
               value={observacao}
               onChange={handleChange}
+              label="Observação"
+              fullWidth
+              variant="outlined"
+              multiline
+              rows={2}
             />
           </Grid>
           <Grid item xs={12}>
-            <div {...getRootProps()} style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center', cursor: 'pointer' }}>
-              <input {...getInputProps()} />
-              <CloudUploadIcon />
-              <Typography>Arraste e solte imagens aqui, ou clique para selecionar</Typography>
-            </div>
-            {images.length > 0 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', marginTop: '10px' }}>
-                {images.map((image, index) => (
-                  <Box key={index} sx={{ position: 'relative', margin: '5px' }}>
-                    <img src={URL.createObjectURL(image)} alt={`preview ${index}`} width="100" height="100" style={{ objectFit: 'cover' }} />
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              component="label"
-              startIcon={<CloudUploadIcon />}
-              fullWidth
-            >
-              Upload Video
-              <input
-                type="file"
-                hidden
-                accept="video/*"
-                name="video"
-                onChange={handleChange}
-              />
-            </Button>
-            {video && (
-              <Typography variant="body2" sx={{ marginTop: '10px' }}>
-                {video.name}
-              </Typography>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              disabled={!allFieldsReady}
-            >
-              {uploading ? <CircularProgress size={24} /> : 'Enviar'}
-            </Button>
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={!allFieldsReady}
+              >
+                {uploading ? <CircularProgress size={24} /> : "Enviar"}
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       </form>
-      <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+      >
         <Alert onClose={handleCloseAlert} severity={alert.severity}>
           {alert.message}
         </Alert>

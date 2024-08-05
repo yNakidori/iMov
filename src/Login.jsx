@@ -4,7 +4,19 @@ import House from "./components/Lottie/House";
 import Footer from "./components/Footer";
 import { auth } from "./firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { Button, CssBaseline, TextField, Grid, Paper, Box, Typography, Link as MuiLink, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  Grid,
+  Paper,
+  Box,
+  Typography,
+  Link as MuiLink,
+  ThemeProvider,
+  createTheme,
+  Alert,
+} from "@mui/material";
 import { getRandomImage } from "./unsplashService";
 
 function Login() {
@@ -12,11 +24,12 @@ function Login() {
   const [password, setPassword] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState("");
+  const [error, setError] = useState(""); // Estado para armazenar a mensagem de erro
 
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const image = await getRandomImage('wallpapers');
+        const image = await getRandomImage("wallpapers");
         setBackgroundImage(image.urls.full);
       } catch (error) {
         console.error("Error fetching the background image:", error);
@@ -35,6 +48,7 @@ function Login() {
       })
       .catch((error) => {
         console.log(error);
+        setError("Email ou senha incorretos. Por favor, tente novamente."); // Define a mensagem de erro
       });
   };
 
@@ -47,7 +61,7 @@ function Login() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <Grid container component="main" sx={{ height: '100vh' }}>
+      <Grid container component="main" sx={{ height: "100vh" }}>
         <Grid
           item
           xs={false}
@@ -55,11 +69,13 @@ function Login() {
           md={7}
           sx={{
             backgroundImage: `url(${backgroundImage})`,
-            backgroundRepeat: 'no-repeat',
+            backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+              t.palette.mode === "light"
+                ? t.palette.grey[50]
+                : t.palette.grey[900],
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
@@ -67,9 +83,9 @@ function Login() {
             sx={{
               my: 8,
               mx: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
             <House />
@@ -77,6 +93,11 @@ function Login() {
               Entrar
             </Typography>
             <Box component="form" noValidate onSubmit={logi} sx={{ mt: 3 }}>
+              {error && (
+                <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+                  {error}
+                </Alert>
+              )}
               <TextField
                 margin="normal"
                 required

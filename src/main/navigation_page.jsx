@@ -6,6 +6,7 @@ import Whats from "../components/Lottie/Whats";
 import { TextField, Button, Typography, CircularProgress } from "@mui/material";
 import capa from "../components/images/filo_thumb.jpg";
 import SidebarInfo from "../components/Lottie/Filo";
+import Map from "../components/MapComponent";
 
 const ContactForm = ({ formData, setFormData, handleSubmit }) => {
   const handleChange = (e) => {
@@ -17,55 +18,29 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
   };
 
   const fontStyle = {
-    fontFamily: "PlaywriteDKTrad, sans-serif",
+    fontFamily: "Pacifico, sans-serif",
   };
 
   return (
-    <div className="absolute top-10 left-10 p-10 rounded-lg shadow-xl z-10 max-w-xl w-full">
+    <div
+      className="absolute top-2 left-1/2 transform -translate-x-1/2 p-4 md:top-4 md:left-4 md:translate-x-0 lg:top-6 lg:left-6 rounded-lg shadow-xl z-10 max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl w-full"
+      style={{ backgroundColor: "rgba(255, 255, 255, 0.9)" }}
+    >
       <Typography
-        variant="h4"
-        className="mb-6 text-center text-gray-800"
+        variant="h5"
+        className="mb-2 md:mb-4 text-center text-gray-800"
         style={fontStyle}
       >
-        Encontre o lar perfeito!
+        Encontre a residência ideal!
       </Typography>
-      <div className="mt-4 mb-2">
-        <Typography
-          variant="subtitle1"
-          className="mb-6 text-center text-gray-600"
-        >
-          DESCUBRA OS MELHORES IMÓVEIS AQUI
+      <div className="mt-2 mb-2">
+        <Typography variant="subtitle2" className="text-center text-gray-600">
+          VENHA FAZER UMA VISITA!
         </Typography>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <TextField
-          fullWidth
-          label="Nome"
-          name="nome"
-          value={formData.nome}
-          onChange={handleChange}
-          className="mb-4"
-        />
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="mb-4"
-        />
-        <TextField
-          fullWidth
-          label="WhatsApp"
-          name="telefone"
-          value={formData.telefone}
-          onChange={handleChange}
-          className="mb-4"
-        />
-        <Button type="submit" variant="contained" color="error" fullWidth>
-          Entre em contato
-        </Button>
-      </form>
+      <div className="mt-4 md:mt-6">
+        <Map />
+      </div>
     </div>
   );
 };
