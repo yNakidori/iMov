@@ -37,6 +37,9 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
         <Typography variant="subtitle2" className="text-center text-gray-600">
           VENHA FAZER UMA VISITA!
         </Typography>
+        <Typography variant="subtitle2" className="text-center text-gray-600">
+          R. Santa Rosa de Lima, 520 - Parque Paulistano, São Paulo - SP, 08080-000
+        </Typography>
       </div>
       <div className="mt-4 md:mt-6">
         <Map />
@@ -99,7 +102,7 @@ const NavPage = () => {
     setSearchTerm(searchTerm);
 
     const filteredImoveis = originalListaDeImoveis.filter((imovel) => {
-      return imovel.neighborhood.toLowerCase().includes(searchTerm);
+      return imovel.neighborhood && imovel.neighborhood.toLowerCase().includes(searchTerm);
     });
 
     setListaDeImoveis(searchTerm ? filteredImoveis : originalListaDeImoveis);
@@ -166,7 +169,7 @@ const NavPage = () => {
           <p className="text-center text-red-500">Nenhum imóvel encontrado</p>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {listaDeImoveis.map((imovel, index) => (
+          {listaDeImoveis.map((imovel) => (
             <ImovelCardFull
               key={imovel.id}
               id={imovel.id}
