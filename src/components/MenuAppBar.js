@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
+import logo from "../components/images/watermark.png"; // Importação do logo
 
 const navigation = [
   { name: "Nossos Imóveis", href: "/navpage", current: false },
@@ -63,7 +64,7 @@ export default function MenuAppBar() {
                 <div className="flex flex-shrink-0 items-center">
                   <img
                     className="h-8 w-auto"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                    src={logo} // Aqui é onde o logo é inserido
                     alt="Sua Empresa"
                   />
                 </div>

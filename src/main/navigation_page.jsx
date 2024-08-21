@@ -38,6 +38,12 @@ const ContactForm = ({ formData, setFormData, handleSubmit }) => {
           VENHA FAZER UMA VISITA!
         </Typography>
       </div>
+      <div className="mt-2 mb-2">
+        <Typography variant="subtitle3" className="text-center text-gray-600">
+          R. Santa Rosa de Lima, 520 - Parque Paulistano, São Paulo - SP,
+          08080-000
+        </Typography>
+      </div>
       <div className="mt-4 md:mt-6">
         <Map />
       </div>

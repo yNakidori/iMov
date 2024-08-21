@@ -93,113 +93,120 @@ function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <Grid container component="main" sx={{ height: "100vh" }}>
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundRepeat: "no-repeat",
-            backgroundColor: (t) =>
-              t.palette.mode === "light"
-                ? t.palette.grey[50]
-                : t.palette.grey[900],
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Grid container sx={{ maxWidth: 900 }}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
             sx={{
-              my: 8,
-              mx: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundRepeat: "no-repeat",
+              backgroundColor: (t) =>
+                t.palette.mode === "light"
+                  ? t.palette.grey[50]
+                  : t.palette.grey[900],
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "8px 0 0 8px",
             }}
+          />
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            component={Paper}
+            elevation={6}
+            square
+            sx={{ borderRadius: "0 8px 8px 0" }}
           >
-            <Gear />
-            <Typography component="h1" variant="h5">
-              Registro de perfil
-            </Typography>
-            <Box component="form" noValidate onSubmit={register} sx={{ mt: 3 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Senha"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="confirmPassword"
-                label="Confirme a Senha"
-                type="password"
-                id="confirmPassword"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              {error && <Typography color="error">{error}</Typography>}
-              {successMessage && (
-                <Typography color="success">{successMessage}</Typography>
-              )}
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+            <Box
+              sx={{
+                my: 4,
+                mx: 4,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Gear />
+              <Typography component="h1" variant="h5">
+                Registro de perfil
+              </Typography>
+              <Box
+                component="form"
+                noValidate
+                onSubmit={register}
+                sx={{ mt: 3 }}
               >
-                Registrar
-              </Button>
-              <Grid container>
-                <Grid item>
-                  <MuiLink component={Link} to="/login" variant="body2">
-                    Já tem uma conta? Faça login
-                  </MuiLink>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Senha"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="confirmPassword"
+                  label="Confirme a Senha"
+                  type="password"
+                  id="confirmPassword"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                {error && <Typography color="error">{error}</Typography>}
+                {successMessage && (
+                  <Typography color="success">{successMessage}</Typography>
+                )}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Registrar
+                </Button>
+                <Grid container>
+                  <Grid item>
+                    <MuiLink component={Link} to="/login" variant="body2">
+                      Já tem uma conta? Faça login
+                    </MuiLink>
+                  </Grid>
                 </Grid>
-              </Grid>
+              </Box>
             </Box>
-          </Box>
-          <Box sx={{ mt: 5 }}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow></TableRow>
-                </TableHead>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.uid}>
-                      <TableCell>{user.email}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
       <Footer />
     </ThemeProvider>
   );
